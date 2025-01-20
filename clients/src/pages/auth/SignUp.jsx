@@ -8,8 +8,9 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const SignUp = () => {
-  const [name, setName] = useState('');
+  const [fullname, setFullname] = useState('');
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [country, setCountry] = useState(null);
   const [phone, setPhone] = useState('');
@@ -48,8 +49,9 @@ const SignUp = () => {
 
   const collectFormValues = () => {
     return {
-      name,
+      fullname,
       email,
+      username,
       password,
       country,
       phone,
@@ -99,15 +101,15 @@ const SignUp = () => {
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <div>
               <div className="mb-2 block">
-                <Label htmlFor="name" value="Full Name" />
+                <Label htmlFor="fullname" value="Full Name" />
               </div>
               <TextInput
-                id="name"
+                id="fullname"
                 type="text"
                 placeholder="Paysparq Limited"
                 required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={fullname}
+                onChange={(e) => setFullname(e.target.value)}
               />
             </div>
             <div>
@@ -121,6 +123,19 @@ const SignUp = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <div className="mb-2 block">
+                <Label htmlFor="username" value="Username" />
+              </div>
+              <TextInput
+                id="username"
+                type="text"
+                placeholder="paysparq"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div>
