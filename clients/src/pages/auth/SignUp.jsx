@@ -1,27 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Label, TextInput, Button } from 'flowbite-react';
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
-import Select from 'react-select';
-import axios from 'axios';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from "react";
+import { Label, TextInput, Button } from "flowbite-react";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import Select from "react-select";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import LoadingSpinner from "../../../components/preload/ApiLoading"; 
 
 const SignUp = () => {
-  const [fullname, setFullname] = useState('');
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [fullname, setFullname] = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [country, setCountry] = useState(null);
-  const [phone, setPhone] = useState('');
-  const [referral, setReferral] = useState('');
+  const [phone, setPhone] = useState("");
+  const [referral, setReferral] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [countries, setCountries] = useState([]);
+  const [loading, setLoading] = useState(false);
 
+  // Fetch countries on component mount
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await axios.get('https://restcountries.com/v3.1/all');
+        const response = await axios.get("https://restcountries.com/v3.1/all");
         const countryOptions = response.data
           .map((country) => ({
             value: country.name.common,
@@ -39,32 +42,76 @@ const SignUp = () => {
           .sort((a, b) => a.value.localeCompare(b.value));
         setCountries(countryOptions);
       } catch (error) {
-        console.error('Error fetching countries:', error);
-        toast.error('Failed to load country options.');
+        console.error("Error fetching countries:", error);
+        toast.error("Failed to load country options.");
       }
     };
 
     fetchCountries();
   }, []);
 
-  const collectFormValues = () => {
-    return {
-      fullname,
-      email,
-      username,
-      password,
-      country,
-      phone,
-      referral,
-      termsAccepted,
-    };
-  };
+  // Disable scrollbar when loading
+  useEffect(() => {
+    if (loading) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [loading]);
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const formValues = collectFormValues();
-    console.log(formValues);
-    // Add your form submission logic here
+  
+    // Validation checks
+    if (!termsAccepted) {
+      toast.error("You must accept the terms and conditions.");
+      return;
+    }
+  
+    if (!country || !country.value) {
+      toast.error("Please select a country.");
+      return;
+    }
+
+    setLoading(true);
+     
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/register", 
+        {
+          fullname,
+          email,
+          username,
+          password,
+          country: country.value, 
+          phone,
+          referral,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      if (response.status === 201) {
+        toast.success("Account created successfully!");
+        setTimeout(() => {
+          window.location.href = "/auth/login"; 
+        }, 2000);
+      }
+    } catch (error) {
+      // Error handling
+      if (error.response) {
+        toast.error(error.response.data.message || "An error occurred. Please try again.");
+      } else {
+        toast.error("An error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false); 
+    }
   };
 
   return (
@@ -100,9 +147,7 @@ const SignUp = () => {
           </h2>
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <div>
-              <div className="mb-2 block">
-                <Label htmlFor="fullname" value="Full Name" />
-              </div>
+              <Label htmlFor="fullname" value="Full Name" />
               <TextInput
                 id="fullname"
                 type="text"
@@ -113,9 +158,7 @@ const SignUp = () => {
               />
             </div>
             <div>
-              <div className="mb-2 block">
-                <Label htmlFor="email" value="Email" />
-              </div>
+              <Label htmlFor="email" value="Email" />
               <TextInput
                 id="email"
                 type="email"
@@ -126,9 +169,7 @@ const SignUp = () => {
               />
             </div>
             <div>
-              <div className="mb-2 block">
-                <Label htmlFor="username" value="Username" />
-              </div>
+              <Label htmlFor="username" value="Username" />
               <TextInput
                 id="username"
                 type="text"
@@ -139,9 +180,7 @@ const SignUp = () => {
               />
             </div>
             <div>
-              <div className="mb-2 block">
-                <Label htmlFor="password" value="Password" />
-              </div>
+              <Label htmlFor="password" value="Password" />
               <TextInput
                 id="password"
                 type="password"
@@ -152,24 +191,20 @@ const SignUp = () => {
               />
             </div>
             <div>
-              <div className="mb-2 block">
-                <Label htmlFor="country" value="Country" />
-              </div>
+              <Label htmlFor="country" value="Country" />
               <Select
                 id="country"
                 options={countries}
                 value={country}
-                onChange={(selectedOption) => setCountry(selectedOption)}
+                onChange={setCountry}
                 placeholder="Select a country"
               />
             </div>
             <div>
-              <div className="mb-2 block">
-                <Label htmlFor="phone" value="Phone" />
-              </div>
+              <Label htmlFor="phone" value="Phone" />
               <PhoneInput
                 country="ng"
-                onlyCountries={['ng', 'us', 'cm', 'uk', 'za', 'ke']}
+                onlyCountries={["ng", "us", "cm", "uk", "za", "ke"]}
                 value={phone}
                 onChange={setPhone}
                 inputClass="w-full"
@@ -177,9 +212,7 @@ const SignUp = () => {
               />
             </div>
             <div>
-              <div className="mb-2 block">
-                <Label htmlFor="referral" value="Referral Code" />
-              </div>
+              <Label htmlFor="referral" value="Referral Code" />
               <TextInput
                 id="referral"
                 type="text"
@@ -188,34 +221,36 @@ const SignUp = () => {
                 onChange={(e) => setReferral(e.target.value)}
               />
             </div>
-            <div>
+            <div className="z-10">
               <input
                 id="termsAccepted"
                 type="checkbox"
                 checked={termsAccepted}
                 onChange={(e) => setTermsAccepted(e.target.checked)}
-                className="z-10 relative"
               />
               <Label
                 htmlFor="termsAccepted"
-                value="I have read and agree to Cleva’s Terms of Service and Privacy Policy."
+                value="I have read and agree to Paysparq’s Terms of Service and Privacy Policy."
               />
             </div>
             <Button type="submit" className="bg-secondary">
               Sign Up
             </Button>
           </form>
-          <div className="pt-8 flex items-center justify-center gap-4 relative">
-            <span className="text-secondary text-base">Do have an account?</span>
+          <div className="pt-8 flex items-center justify-center gap-4">
+            <span className="text-secondary text-base">Do you have an account?</span>
             <a
               href="/auth/login"
-              className="text-primary-600 text-base relative z-10 font-interSB"
+              className="text-primary-600 text-base font-interSB"
             >
               Sign In
             </a>
           </div>
         </div>
       </div>
+
+      {/* Render Loading Spinner if loading is true */}
+      {loading && <LoadingSpinner />}
     </div>
   );
 };

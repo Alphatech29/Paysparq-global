@@ -1,8 +1,9 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const path = require('path'); 
+const path = require('path');
 const cors = require('cors');
-const authRoutes = require('./routes/router'); // Import auth routes
+const bodyParser = require("body-parser");
+const authRoutes = require('./routes/router'); // Correct file path
 
 // Load environment variables
 dotenv.config();
@@ -18,6 +19,10 @@ const corsOptions = {
 // Apply middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(bodyParser.json());
+
+// Define routes
+app.use('/api', authRoutes);
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
@@ -31,9 +36,6 @@ if (process.env.NODE_ENV === 'production') {
     }
   });
 }
-
-// Define routes
-app.use('/api/auth', authRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

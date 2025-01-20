@@ -4,10 +4,10 @@ const validator = require("validator");
 
 const signUp = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { fullname, email, username, password, country, phone } = req.body;
 
     // Validate inputs
-    if (!name || !email || !password) {
+    if (!fullname || !email || !username || !password || !country || !phone) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -15,20 +15,20 @@ const signUp = async (req, res) => {
       return res.status(400).json({ message: "Invalid email format" });
     }
 
-    if (password.length < 8) {
-      return res.status(400).json({ message: "Password must be at least 8 characters long" });
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long" });
     }
 
-    // Check if the user already exists
+    // Check if the user already exists by email or username
     const { data: existingUser, error: fetchError } = await supabase
       .from("users")
-      .select("id") // Only fetch the ID to minimize data retrieval
-      .eq("email", email)
-      .single();
+      .select("id")
+      .or(`email.eq.${email},username.eq.${username}`)
+      .maybeSingle(); 
 
-    if (fetchError && fetchError.code !== "PGRST116") {
+    if (fetchError) {
       console.error("Error checking for existing user:", fetchError);
-      return res.status(500).json({ message: "Internal server error" });
+      return res.status(500).json({ message: "Error checking for existing user" });
     }
 
     if (existingUser) {
@@ -38,23 +38,38 @@ const signUp = async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Log before inserting
+    console.log("Inserting new user data:", {
+      fullname,
+      email,
+      username,
+      country,
+      phone,
+      password: hashedPassword,
+    });
+
     // Insert the new user
     const { data: newUser, error: insertError } = await supabase
       .from("users")
       .insert([
         {
-          name,
+          fullname,
           email,
+          username,
+          country,
+          phone,
           password: hashedPassword,
         },
       ])
-      .select("id") // Only return the ID of the new user
+      .select("id")
       .single();
 
     if (insertError) {
       console.error("Error inserting new user:", insertError);
-      return res.status(500).json({ message: "Internal server error" });
+      return res.status(500).json({ message: "Error inserting new user" });
     }
+
+    console.log("New user created with ID:", newUser.id);
 
     // Respond to the client
     res.status(201).json({
