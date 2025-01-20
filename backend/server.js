@@ -3,21 +3,19 @@ const dotenv = require('dotenv');
 const path = require('path');
 const cors = require('cors');
 const bodyParser = require("body-parser");
-const authRoutes = require('./routes/router'); // Correct file path
+const authRoutes = require('./routes/router'); 
+const corsOptions = require('./controller/utils/crossOrigin');
 
-// Load environment variables
+
 dotenv.config();
 
 const app = express();
 
 // CORS configuration
-const corsOptions = {
-  origin: process.env.CLIENT_URL || 'http://localhost:5173', // Use CLIENT_URL from .env if available
-  credentials: true,
-};
+app.use(cors(corsOptions));
+
 
 // Apply middleware
-app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.json());
 
