@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 const LoadingSpinner = () => {
   return (
-    <div className="absolute inset-0 flex max-h-dvh justify-center items-center bg-opacity-50 bg-primary-600/20 z-20">
+    <div className="absolute inset-0 w-full max-h-full flex justify-center items-center bg-opacity-50 bg-primary-600/20 z-50">
       <motion.div
             className="relative flex items-center justify-center border-4 border-transparent rounded-full p-3"
             animate={{

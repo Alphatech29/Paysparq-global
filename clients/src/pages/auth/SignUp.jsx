@@ -115,44 +115,32 @@ const SignUp = () => {
   };
 
   return (
-    <div className="bg-primary-600 w-full h-full flex justify-center items-center cover relative">
-      <ToastContainer />
-      <img
-        src="/image/wigglynet3.png"
-        alt=""
-        className="absolute top-0 left-0 w-full h-full object-cover"
-      />
-      <div className="flex flex-col h-full justify-center items-center w-2/5 z-10">
-        <a href="/">
-          <img
-            src="/image/footer-logo.png"
-            alt=""
-            loading="lazy"
-            className="h-16 absolute top-5 left-0 pl-8"
-          />
-        </a>
-        <div className="bg-paysparq/40 rounded-lg p-10 px-24">
-          <img
-            src="/image/main-screen-left.png"
-            alt=""
-            loading="lazy"
-            width={300}
-          />
-        </div>
+    <div className="login-fk">
+    <div className="bg-primary-600 flex flex-col relative cover justify-center items-center w-2/5 z-10">
+    <img 
+  src="/image/wigglynet3.png" 
+  alt="" 
+  className="absolute object-cover inset-0 h-full w-full"
+/>
+<a href="/">
+        <img src="/image/footer-logo.png" alt="" loading="lazy" className="h-20 pb-8" />
+      </a>
+      <div className="bg-paysparq/40 rounded-lg py-4 px-20 z-10">
+        <img  src="/image/main-screen-left.png" alt="" loading="lazy" width={300} />
       </div>
-      <div className="bg-paysparq p-20 flex justify-center items-center w-3/5 flex-col border">
-        <div className="justify-start items-center border-primary-600 border p-10 rounded-lg">
-          <h2 className="text-xl text-secondary font-interSB pb-6 text-center">
-            Create Account
-          </h2>
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+    </div>
+    <div className="bg-paysparq overflow-y-auto py-11 px-10 flex justify-center  items-center w-3/5 flex-col border">
+     
+      <div className="justify-start mt-40 py-3 items-center border-primary-600 border px-5  rounded-lg">
+        <h2 className="text-xl text-secondary font-interSB pb-6 text-center">Create Account</h2>
+        <form className="flex w-80 flex-col gap-4" onSubmit={handleSubmit}>
             <div>
               <Label htmlFor="fullname" value="Full Name" />
               <TextInput
                 id="fullname"
                 type="text"
                 placeholder="Paysparq Limited"
-                required
+                required={false}
                 value={fullname}
                 onChange={(e) => setFullname(e.target.value)}
               />
@@ -163,7 +151,7 @@ const SignUp = () => {
                 id="email"
                 type="email"
                 placeholder="example@example.com"
-                required
+                required={false}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -174,7 +162,7 @@ const SignUp = () => {
                 id="username"
                 type="text"
                 placeholder="paysparq"
-                required
+                required={false}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
@@ -185,16 +173,18 @@ const SignUp = () => {
                 id="password"
                 type="password"
                 placeholder="********"
-                required
+                required={false}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <div>
+            <div className="z-20">
               <Label htmlFor="country" value="Country" />
               <Select
                 id="country"
-                options={countries}
+                options={
+                  countries
+                }
                 value={country}
                 onChange={setCountry}
                 placeholder="Select a country"
@@ -218,6 +208,7 @@ const SignUp = () => {
                 type="text"
                 placeholder="Referral Code"
                 value={referral}
+                required={false}
                 onChange={(e) => setReferral(e.target.value)}
               />
             </div>
@@ -241,17 +232,16 @@ const SignUp = () => {
             <span className="text-secondary text-base">Do you have an account?</span>
             <a
               href="/auth/login"
-              className="text-primary-600 text-base font-interSB"
+              className="text-primary-600 text-base z-10 font-interSB"
             >
               Sign In
             </a>
           </div>
-        </div>
       </div>
-
-      {/* Render Loading Spinner if loading is true */}
-      {loading && <LoadingSpinner />}
     </div>
+    {loading && <LoadingSpinner />}
+    <ToastContainer />
+  </div>
   );
 };
 

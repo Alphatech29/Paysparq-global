@@ -1,19 +1,14 @@
-// Authentication Middleware
-const authenticateUser = (req, res, next) => {
-  const token = req.headers.authorization;
+const jwt = require('jsonwebtoken');
 
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized: No token provided" });
-  }
+const authToken = (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (!token) return res.status(401).json({ message: 'Unauthorized' });
 
-  try {
-    // Validate the token (assuming JWT)
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ message: "Unauthorized: Invalid token" });
-  }
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ message: 'Forbidden' });
+        req.user = user; 
+        next();
+    });
 };
 
 // Logging Middleware
@@ -41,4 +36,4 @@ const authorizeRole = (roles) => {
 };
 
 
-module.exports = {authenticateUser,logRequests,errorHandler,authorizeRole,};
+module.exports = {authToken,logRequests,errorHandler,authorizeRole,};

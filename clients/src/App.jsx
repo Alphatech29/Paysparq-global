@@ -7,6 +7,7 @@ import Home from './pages/home/home';
 import NotFound from './pages/NotFound';
 import SignUp from './pages/auth/SignUp';
 import SignIn from './pages/auth/SignIn';
+import Dashboard from './pages/user/Dashboard/Dashboard'
 import Preload from '../components/preload/Preload'; 
 import '@fontsource/inter/400.css'; 
 import '@fontsource/inter/500.css'; 
@@ -27,14 +28,14 @@ function Layout({ children, hideHeaderFooter, hidePreload }) {
 
 Layout.propTypes = {
   children: PropTypes.node.isRequired,
-  hideHeaderFooter: PropTypes.bool,  // Add the hideHeaderFooter prop here
-  hidePreload: PropTypes.bool,  // Add the hidePreload prop here
+  hideHeaderFooter: PropTypes.bool,  
+  hidePreload: PropTypes.bool, 
 };
 
 
 Layout.propTypes = {
   children: PropTypes.node.isRequired,
-  hideHeaderFooter: PropTypes.bool,  // Add the hideHeaderFooter prop here
+  hideHeaderFooter: PropTypes.bool,  
 };
 
 
@@ -58,6 +59,12 @@ function App() {
           <Route
             path="*"
             element={<Layout hideHeaderFooter={false} hidePreload={false}><NotFound /></Layout>}
+          />
+
+          {/*Private Routles */}
+          <Route
+            path="user/dashboard"
+            element={<Layout hideHeaderFooter={true} hidePreload={true}><Dashboard /></Layout>}
           />
         </Routes>
       </Router>

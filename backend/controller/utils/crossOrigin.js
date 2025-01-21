@@ -1,4 +1,3 @@
-// corsConfig.js
 const os = require('os');
 
 // Function to get the server's IP address dynamically
@@ -7,34 +6,30 @@ function getServerIP() {
   for (const name of Object.keys(interfaces)) {
     for (const iface of interfaces[name]) {
       if (iface.family === 'IPv4' && !iface.internal) {
-        return iface.address; // Return the first external IPv4 address
+        return iface.address; 
       }
     }
   }
-  return '127.0.0.1'; // Fallback for localhost
+  return '127.0.0.1'; 
 }
 
-// CORS options
 const corsOptions = {
   origin: (origin, callback) => {
-    // Get the server IP dynamically
     const serverIP = getServerIP();
 
-    // Allowed origins (includes dynamic host)
     const allowedOrigins = [
-      `http://${serverIP}`,              // Server IP for HTTP
-      `https://${serverIP}`,             // Server IP for HTTPS
-      'http://localhost:5173',           // Local development
+      `http://${serverIP}`,             
+      `https://${serverIP}`,             
+      'http://localhost:5173',          
     ];
 
-    // Allow current request origin if matches the live domain or server IP
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true); // Request allowed
+      callback(null, true); 
     } else {
-      callback(new Error(`CORS Error: Origin ${origin} not allowed`)); // Block
+      callback(new Error(`CORS Error: Origin ${origin} not allowed`)); 
     }
   },
-  credentials: true, // Allow cookies and auth headers
+  credentials: true, 
 };
 
 module.exports = corsOptions;
