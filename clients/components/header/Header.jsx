@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { AuthContext } from "../../src/context/authContext";
 
 function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const { authenticated, logout } = useContext(AuthContext);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,11 +55,19 @@ function Header() {
                 Contact
               </a>
             </li>
-            <li>
-              <a href="/auth/login" className="text-white text-base bg-primary-600 rounded-md px-5 py-2 hover:border hover:border-primary-600 hover:bg-transparent !hover:border-primary-600">
-                Login
-              </a>
-            </li>
+            {authenticated ? (
+              <li>
+                <a href="/user/dashboard" className="text-white text-base bg-primary-600 rounded-md px-5 py-2 hover:border hover:border-primary-600 hover:bg-transparent !hover:border-primary-600">
+                  Dashboard
+                </a>
+              </li>
+            ) : (
+              <li>
+                <a href="/auth/login" className="text-white text-base bg-primary-600 rounded-md px-5 py-2 hover:border hover:border-primary-600 hover:bg-transparent !hover:border-primary-600">
+                  Login
+                </a>
+              </li>
+            )}
           </ul>
          </div>
         

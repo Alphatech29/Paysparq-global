@@ -6,9 +6,13 @@ import Select from "react-select";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import LoadingSpinner from "../../../components/preload/ApiLoading"; 
+import LoadingSpinner from "../../../components/preload/ApiLoading";
+import { useNavigate } from "react-router-dom"; 
 
 const SignUp = () => {
+  const BASE_URL = import.meta.env.VITE_BASE_URL ;
+  const navigate = useNavigate(); // Correct use of `useNavigate`
+
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -29,7 +33,7 @@ const SignUp = () => {
           .map((country) => ({
             value: country.name.common,
             label: (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" key={country.name.common}>
                 <img
                   src={country.flags.svg}
                   alt={country.name.common}
@@ -52,40 +56,34 @@ const SignUp = () => {
 
   // Disable scrollbar when loading
   useEffect(() => {
-    if (loading) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = loading ? "hidden" : "";
   }, [loading]);
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Validation checks
+    if (!fullname || !email || !username || !password || !country || !country.value) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
     if (!termsAccepted) {
       toast.error("You must accept the terms and conditions.");
       return;
     }
-  
-    if (!country || !country.value) {
-      toast.error("Please select a country.");
-      return;
-    }
 
     setLoading(true);
-     
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/register", 
+        `${BASE_URL}/api/auth/register`,
         {
           fullname,
           email,
           username,
           password,
-          country: country.value, 
+          country: country.value,
           phone,
           referral,
         },
@@ -95,11 +93,11 @@ const SignUp = () => {
           },
         }
       );
-  
+
       if (response.status === 201) {
         toast.success("Account created successfully!");
         setTimeout(() => {
-          window.location.href = "/auth/login"; 
+          navigate("/auth/login"); // Corrected to `navigate`
         }, 2000);
       }
     } catch (error) {
@@ -110,39 +108,43 @@ const SignUp = () => {
         toast.error("An error occurred. Please try again.");
       }
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
   return (
     <div className="login-fk">
-    <div className="bg-primary-600 flex flex-col relative cover justify-center items-center w-2/5 z-10">
-    <img 
-  src="/image/wigglynet3.png" 
-  alt="" 
-  className="absolute object-cover inset-0 h-full w-full"
-/>
-<a href="/">
-        <img src="/image/footer-logo.png" alt="" loading="lazy" className="h-20 pb-8" />
-      </a>
-      <div className="bg-paysparq/40 rounded-lg py-4 px-20 z-10">
-        <img  src="/image/main-screen-left.png" alt="" loading="lazy" width={300} />
+      <div className="bg-primary-600 flex flex-col relative cover justify-center items-center pc:w-[80%] z-10 mobile:hidden pc:flex">
+        <img
+          src="/image/wigglynet3.png"
+          alt=""
+          className="absolute object-cover inset-0 h-full w-full"
+        />
+        <a href="/">
+          <img src="/image/footer-logo.png" alt="" loading="lazy" className="h-20 pb-8" />
+        </a>
+        <div className="bg-paysparq/40 rounded-lg py-4 px-20 z-10">
+          <img src="/image/main-screen-left.png" alt="" loading="lazy" width={300} />
+        </div>
       </div>
-    </div>
-    <div className="bg-paysparq overflow-y-auto py-11 px-10 flex justify-center  items-center w-3/5 flex-col border">
-     
-      <div className="justify-start mt-40 py-3 items-center border-primary-600 border px-5  rounded-lg">
-        <h2 className="text-xl text-secondary font-interSB pb-6 text-center">Create Account</h2>
-        <form className="flex w-80 flex-col gap-4" onSubmit={handleSubmit}>
+      <div className="bg-paysparq pc:flex pc:items-center pc:w-full pc:justify-center mobile:items-center overflow-y-auto mobile:w-dvw mobile:px-3 mobile:pb-5">
+        <div className="pc:hidden mobile:flex mobile:justify-center mobile:items-center mobile:w-full">
+          <a href="/">
+            <img src="/image/paysparq-logo.png" alt="" loading="lazy" className="h-20 py-4" />
+          </a>
+        </div>
+        <div className="pc:mt-[30%] py-3 pc:w-[50%] mobile:overflow-hidden border-primary-600 border px-5 rounded-lg">
+          <h2 className="text-xl text-secondary font-interSB pb-6 text-center">Create Account</h2>
+          <form className="flex pc:w-80 mobile:w-auto flex-col gap-4" onSubmit={handleSubmit}>
             <div>
               <Label htmlFor="fullname" value="Full Name" />
               <TextInput
                 id="fullname"
                 type="text"
                 placeholder="Paysparq Limited"
-                required={false}
                 value={fullname}
                 onChange={(e) => setFullname(e.target.value)}
+                
               />
             </div>
             <div>
@@ -151,9 +153,9 @@ const SignUp = () => {
                 id="email"
                 type="email"
                 placeholder="example@example.com"
-                required={false}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                
               />
             </div>
             <div>
@@ -162,9 +164,9 @@ const SignUp = () => {
                 id="username"
                 type="text"
                 placeholder="paysparq"
-                required={false}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                
               />
             </div>
             <div>
@@ -173,18 +175,16 @@ const SignUp = () => {
                 id="password"
                 type="password"
                 placeholder="********"
-                required={false}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                
               />
             </div>
             <div className="z-20">
               <Label htmlFor="country" value="Country" />
               <Select
                 id="country"
-                options={
-                  countries
-                }
+                options={countries}
                 value={country}
                 onChange={setCountry}
                 placeholder="Select a country"
@@ -208,40 +208,33 @@ const SignUp = () => {
                 type="text"
                 placeholder="Referral Code"
                 value={referral}
-                required={false}
                 onChange={(e) => setReferral(e.target.value)}
               />
             </div>
             <div className="z-10">
-              <input
-                id="termsAccepted"
-                type="checkbox"
-                checked={termsAccepted}
-                onChange={(e) => setTermsAccepted(e.target.checked)}
-              />
-              <Label
-                htmlFor="termsAccepted"
-                value="I have read and agree to Paysparq’s Terms of Service and Privacy Policy."
-              />
+              <label className="flex items-center gap-2">
+                <input
+                  id="termsAccepted"
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                />
+                <span>I have read and agree to Paysparq’s Terms of Service and Privacy Policy.</span>
+              </label>
             </div>
             <Button type="submit" className="bg-secondary">
               Sign Up
             </Button>
           </form>
-          <div className="pt-8 flex items-center justify-center gap-4">
-            <span className="text-secondary text-base">Do you have an account?</span>
-            <a
-              href="/auth/login"
-              className="text-primary-600 text-base z-10 font-interSB"
-            >
-              Sign In
-            </a>
+          <div className="pt-8 flex items-center justify-center gap-4 relative">
+            <span className="text-secondary text-sm">I have an account</span>
+            <a href="/auth/login" className="text-primary-600 text-sm relative z-10 font-interSB">Sign In</a>
           </div>
+        </div>
       </div>
+      {loading && <LoadingSpinner />}
+      <ToastContainer />
     </div>
-    {loading && <LoadingSpinner />}
-    <ToastContainer />
-  </div>
   );
 };
 

@@ -7,6 +7,10 @@ export default {
     "./components/**/*.{js,jsx,ts,tsx}", 
   ],
   theme: {
+    screens: {
+      'mobile': '350px',
+      'pc': '1024px',
+    },
     extend: {
       colors: {
         primary:{
