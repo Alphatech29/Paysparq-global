@@ -27,10 +27,10 @@ export const AuroraHero = () => {
       style={{
         backgroundImage,
       }}
-      className="relative grid min-h-screen top-0 pt-60 place-content-center overflow-hidden bg-gray-950 px-4 py-24 text-gray-200"
+      className="relative grid pc:min-h-screen mobile:py-24  top-0 pc:pt-48 place-content-center overflow-hidden bg-gray-950 px-4 pc:py-0 text-gray-200"
     >
-      <div className="relative z-10 flex flex-col items-center">
-        <h1 className="max-w-4xl text-interB bg-gradient-to-br from-white to-gray-400 bg-clip-text text-center text-5xl font-bold leading-tight">
+      <div className="relative z-10 flex flex-col items-center mobile:pt-24 pc:pt-0">
+        <h1 className="max-w-4xl text-interB bg-gradient-to-br from-white to-gray-400 bg-clip-text text-center pc:text-5xl mobile:text-4xl font-bold leading-tight">
         Your Gateway to Gift Card Trading, Crypto Excellence, and Easy Bill Payments!
         </h1>
         <p className="my-6 max-w-2xl text-center text-xl leading-relaxed md:text-lg md:leading-relaxed">
