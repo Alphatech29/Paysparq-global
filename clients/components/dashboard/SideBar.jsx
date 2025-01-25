@@ -1,4 +1,4 @@
-import React, { useContext } from "react"; 
+import React from "react";
 import { Dropdown } from "flowbite-react";
 import { 
   HiViewGrid, HiGift, HiOutlineAdjustments, HiOutlineRss, HiOutlineWifi, 
@@ -9,10 +9,21 @@ import { FaBitcoin } from "react-icons/fa";
 import { CiCreditCard1, CiBank } from "react-icons/ci";
 import { MdManageAccounts, MdOutlineAccountTree, MdPayments } from "react-icons/md";
 import { IoIosAddCircleOutline } from "react-icons/io";
-import { AuthContext } from "./../../src/context/authContext";
+import { NavLink, useNavigate } from 'react-router-dom'; 
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from "../../src/redux/authSlice";
 
 const SideBar = () => {
-  const { authenticated, logout } = useContext(AuthContext); 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
+  // Get the authentication status from Redux store
+  const authenticated = useSelector((state) => state.auth.authenticated);
+
+  const handleLogout = () => {
+    dispatch(logout()); 
+    navigate("/auth/login"); 
+  };
 
   return (
     <div className='bg-paysparq w-64 h-screen fixed flex flex-col items-start justify-start px-4 z-20'>
@@ -23,9 +34,9 @@ const SideBar = () => {
       </div>
       <div className='gap-4 flex flex-col'>
         <span>
-          <a href="/user/dashboard" className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'>
+          <NavLink to="/user/dashboard" activeclassname="dashboard" className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'>
             <HiViewGrid /> <span>Dashboard</span>
-          </a>
+          </NavLink>
         </span>
 
         <Dropdown 
@@ -63,7 +74,7 @@ const SideBar = () => {
             Data Topup
           </Dropdown.Item>
           <Dropdown.Item icon={HiOutlineClipboardList} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            Bills Pay
+            Pay Bills
           </Dropdown.Item>
         </Dropdown>
 
@@ -78,10 +89,10 @@ const SideBar = () => {
           className="bg-pay border-none shadow-none"
         >
           <Dropdown.Item icon={CiBank} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            Withdraw
+          <NavLink to="/user/withdrawal">Withdraw</NavLink>
           </Dropdown.Item>
           <Dropdown.Item icon={IoIosAddCircleOutline} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            Fund Wallet
+            <NavLink to="/user/addfund">Fund Wallet</NavLink>
           </Dropdown.Item>
         </Dropdown>
 
@@ -91,9 +102,9 @@ const SideBar = () => {
           </a>
         </span>
         <span>
-          <a href="/user/airtime-cash" className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'>
+          <NavLink to="/user/airtime-cash" activeclassname="airtime-to-cash" className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'>
             <HiArrowsExpand /> <span>Airtime to cash</span>
-          </a>
+          </NavLink>
         </span>
         <span>
           <a href="/user/card" className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'>
@@ -126,7 +137,7 @@ const SideBar = () => {
           </Dropdown.Item>
           <Dropdown.Item
             icon={HiLogout}
-            onClick={authenticated ? logout : null}
+            onClick={authenticated ? handleLogout : null}
           >
             Sign out
           </Dropdown.Item>

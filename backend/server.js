@@ -4,7 +4,6 @@ const path = require('path');
 const cors = require('cors');
 const bodyParser = require("body-parser");
 const authRoutes = require('./routes/router'); 
-const corsOptions = require('./controller/utils/crossOrigin');
 
 
 dotenv.config();
@@ -12,7 +11,7 @@ dotenv.config();
 const app = express();
 
 // CORS configuration
-app.use(cors(corsOptions));
+app.use(cors());
 
 
 // Apply middleware
@@ -27,13 +26,12 @@ if (process.env.NODE_ENV === 'production') {
   const rootDir = path.resolve(__dirname, 'clients', 'dist');
   app.use(express.static(rootDir));
 
-  // Serve index.html for unknown routes (non-API)
   app.get('*', (req, res) => {
     if (!req.url.startsWith('/api')) {
       res.sendFile(path.join(rootDir, 'index.html'));
     }
   });
-}
+} 
 
 // Error handling middleware
 app.use((err, req, res, next) => {

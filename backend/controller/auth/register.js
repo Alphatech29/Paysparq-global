@@ -4,10 +4,10 @@ const validator = require("validator");
 
 const signUp = async (req, res) => {
   try {
-    const { fullname, email, username, password, country, phone } = req.body;
+    const { fullname, email, username, password, country, phone_number } = req.body;
 
     // Validate inputs
-    if (!fullname || !email || !username || !password || !country || !phone) {
+    if (!fullname || !email || !username || !password || !country || !phone_number) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -19,12 +19,12 @@ const signUp = async (req, res) => {
       return res.status(400).json({ message: "Password must be at least 6 characters long" });
     }
 
-    // Check if the user already exists by email or username
+    // Check for duplicates (email, username, phone_number)
     const { data: existingUser, error: fetchError } = await supabase
-      .from("users")
-      .select("id")
-      .or(`email.eq.${email},username.eq.${username}`)
-      .maybeSingle(); 
+      .from("p_users")
+      .select("uid")  
+      .or(`email.eq.${email},username.eq.${username},phone_number.eq.${phone_number}`)
+      .maybeSingle();
 
     if (fetchError) {
       console.error("Error checking for existing user:", fetchError);
@@ -32,36 +32,27 @@ const signUp = async (req, res) => {
     }
 
     if (existingUser) {
-      return res.status(409).json({ message: "User already exists" });
+      return res.status(409).json({ message: "User with provided details already exists" });
     }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Log before inserting
-    console.log("Inserting new user data:", {
-      fullname,
-      email,
-      username,
-      country,
-      phone,
-      password: hashedPassword,
-    });
-
     // Insert the new user
+    console.log(newUser);
     const { data: newUser, error: insertError } = await supabase
-      .from("users")
+      .from("p_users")
       .insert([
         {
           fullname,
           email,
           username,
           country,
-          phone,
+          phone_number,
           password: hashedPassword,
         },
       ])
-      .select("id")
+      .select("uid")
       .single();
 
     if (insertError) {
@@ -69,12 +60,10 @@ const signUp = async (req, res) => {
       return res.status(500).json({ message: "Error inserting new user" });
     }
 
-    console.log("New user created with ID:", newUser.id);
-
     // Respond to the client
     res.status(201).json({
       message: "User created successfully",
-      userId: newUser.id,
+      userId: newUser.uid,  
     });
   } catch (error) {
     console.error("Error during sign-up:", error);

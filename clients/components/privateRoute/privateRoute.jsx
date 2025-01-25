@@ -1,17 +1,31 @@
-import React, { useContext } from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import { AuthContext } from "../../src/context/authContext";
-import LoadingSpinner from "../preload/ApiLoading";
+// src/components/PrivateRoute.jsx
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Navigate } from "react-router-dom";
+import LoadingSpinner from "../preload/ApiLoading"; 
+import { selectAuth, selectLoading, checkAuth } from "../../src/redux/authSlice"; 
 
-const PrivateRoute = () => {
-  const { authenticated } = useContext(AuthContext);
+const PrivateRoute = ({ children }) => {
+  const authenticated = useSelector(selectAuth);
+  const loading = useSelector(selectLoading);
+  const dispatch = useDispatch();
 
-  if (authenticated === null) {
-   
-    return(<LoadingSpinner />);
+  useEffect(() => {
+    dispatch(checkAuth()); // Check authentication status on mount
+  }, [dispatch]);
+
+  // Show loading spinner if authentication is still being checked
+  if (loading || authenticated === null) {
+    return <LoadingSpinner />;
   }
 
-  return authenticated ? <Outlet /> : <Navigate to="/auth/login" replace />;
+  // If user is not authenticated, redirect to login page
+  if (authenticated === false) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  // If authenticated, render the child component
+  return children;
 };
 
 export default PrivateRoute;

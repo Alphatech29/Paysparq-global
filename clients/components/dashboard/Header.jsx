@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, Dropdown } from "flowbite-react";
+import { Avatar} from "flowbite-react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 
 function Header() {

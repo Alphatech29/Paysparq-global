@@ -7,18 +7,18 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoadingSpinner from "../../../components/preload/ApiLoading";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
-  const BASE_URL = import.meta.env.VITE_BASE_URL ;
-  const navigate = useNavigate(); // Correct use of `useNavigate`
+  const BASE_URL = import.meta.env.VITE_BASE_URL; // Log the value of BASE_URL to verify
+  const navigate = useNavigate();
 
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [country, setCountry] = useState(null);
-  const [phone, setPhone] = useState("");
+  const [phone_number, setPhone] = useState("");
   const [referral, setReferral] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [countries, setCountries] = useState([]);
@@ -63,7 +63,7 @@ const SignUp = () => {
     e.preventDefault();
 
     // Validation checks
-    if (!fullname || !email || !username || !password || !country || !country.value) {
+    if (!fullname || !email || !username || !password || !country || !country.value || !phone_number) {
       toast.error("Please fill in all required fields.");
       return;
     }
@@ -75,16 +75,27 @@ const SignUp = () => {
 
     setLoading(true);
 
+    // Log the payload to inspect before sending
+    console.log("Payload being sent:", {
+      fullname,
+      email,
+      username,
+      password,
+      country: country.value,
+      phone_number,
+      referral,
+    });
+
     try {
       const response = await axios.post(
-        `${BASE_URL}/api/auth/register`,
+        `/api/auth/register`,
         {
           fullname,
           email,
           username,
           password,
           country: country.value,
-          phone,
+          phone_number,
           referral,
         },
         {
@@ -94,15 +105,21 @@ const SignUp = () => {
         }
       );
 
+      // Inspect the response
       if (response.status === 201) {
         toast.success("Account created successfully!");
         setTimeout(() => {
-          navigate("/auth/login"); // Corrected to `navigate`
+          navigate("/auth/login");
         }, 2000);
+      } else {
+        console.log("Unexpected response:", response);
+        toast.error("An unexpected error occurred.");
       }
     } catch (error) {
-      // Error handling
+      // Improved error handling
+      console.error("Error during sign-up:", error); // Log the full error object
       if (error.response) {
+        console.error("Backend error response:", error.response);
         toast.error(error.response.data.message || "An error occurred. Please try again.");
       } else {
         toast.error("An error occurred. Please try again.");
@@ -144,7 +161,6 @@ const SignUp = () => {
                 placeholder="Paysparq Limited"
                 value={fullname}
                 onChange={(e) => setFullname(e.target.value)}
-                
               />
             </div>
             <div>
@@ -155,7 +171,6 @@ const SignUp = () => {
                 placeholder="example@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                
               />
             </div>
             <div>
@@ -166,7 +181,6 @@ const SignUp = () => {
                 placeholder="paysparq"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                
               />
             </div>
             <div>
@@ -177,7 +191,6 @@ const SignUp = () => {
                 placeholder="********"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                
               />
             </div>
             <div className="z-20">
@@ -195,7 +208,7 @@ const SignUp = () => {
               <PhoneInput
                 country="ng"
                 onlyCountries={["ng", "us", "cm", "uk", "za", "ke"]}
-                value={phone}
+                value={phone_number}
                 onChange={setPhone}
                 inputClass="w-full"
                 containerClass="w-full"

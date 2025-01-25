@@ -1,10 +1,11 @@
-import { useState, useEffect, useContext } from "react";
-import { AuthContext } from "../../src/context/authContext";
-
+// src/components/Header.jsx
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../src/redux/authSlice"; 
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { authenticated } = useContext(AuthContext);
+  const authenticated = useSelector(selectAuth);  // Use Redux to get authentication state
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -17,24 +18,11 @@ function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.target.closest("#navbar-default") && !event.target.closest("button[aria-controls='navbar-default']")) {
-        setMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
-
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full z-40 ${
-        scrolled ? "bg-primary-100" : "bg-transparent"
-      } backdrop-blur-md transition-all duration-300 `}
+      className={`fixed top-0 left-0 w-full z-40 ${scrolled ? "bg-primary-100" : "bg-transparent"} backdrop-blur-md transition-all duration-300`}
       style={{
         backgroundColor: scrolled ? "rgba(130, 53, 12, 0.9)" : "transparent",
       }}
@@ -45,12 +33,12 @@ function Header() {
         </a>
 
         <div className="nav-menu flex items-end justify-end w-[50%]">
-          <button 
-            data-collapse-toggle="navbar-default" 
-            type="button" 
-            className="inline-flex items-center p-2 w-10 h-10 justify-center text-base text-paysparq rounded-lg pc:hidden focus:outline-none focus:ring-1 focus:ring-paysparq border border-paysparq" 
-            aria-controls="navbar-default" 
-            aria-expanded={menuOpen ? "true" : "false"} 
+          <button
+            data-collapse-toggle="navbar-default"
+            type="button"
+            className="inline-flex items-center p-2 w-10 h-10 justify-center text-base text-paysparq rounded-lg pc:hidden focus:outline-none focus:ring-1 focus:ring-paysparq border border-paysparq"
+            aria-controls="navbar-default"
+            aria-expanded={menuOpen ? "true" : "false"}
             onClick={toggleMenu}
           >
             <span className="sr-only">Open main menu</span>

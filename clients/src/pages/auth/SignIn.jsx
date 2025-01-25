@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Label, TextInput, Button, Checkbox } from "flowbite-react";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -8,12 +8,11 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoadingSpinner from "../../../components/preload/ApiLoading";
 import Cookies from "js-cookie";
-import { AuthContext } from "../../context/authContext";
+import { useDispatch } from "react-redux";
+import { setAuthenticated } from "../../redux/authSlice";
 
 const SignIn = () => {
-  const BASE_URL = import.meta.env.VITE_BASE_URL;
-
-  const { setAuthenticated } = useContext(AuthContext);
+  const dispatch = useDispatch(); // Redux dispatch to set auth state
 
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -28,6 +27,15 @@ const SignIn = () => {
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(input);
   };
+
+  useEffect(() => {
+    // Check if the user is already authenticated (via cookies or redux)
+    const authToken = Cookies.get("authToken");
+    if (authToken) {
+      dispatch(setAuthenticated(true)); // Dispatch to update redux state
+      navigate("/user/dashboard"); // Redirect to protected route if already logged in
+    }
+  }, [dispatch, navigate]);
 
   useEffect(() => {
     if (loading) {
@@ -52,7 +60,7 @@ const SignIn = () => {
 
     setLoading(true);
     try {
-      const { data } = await axios.post(`${BASE_URL}/api/auth/login`, {
+      const { data } = await axios.post("/api/auth/login", {
         emailOrUsername,
         password,
         rememberMe,
@@ -60,17 +68,16 @@ const SignIn = () => {
 
       toast.success(data.message);
       storeAuthToken(data.token, rememberMe);
-      setAuthenticated(true);
+      dispatch(setAuthenticated(true)); // Set the authenticated state
 
       setTimeout(() => {
-        navigate("/user/dashboard");
+        navigate("/user/dashboard"); // Navigate to the dashboard after successful login
       }, 1000);
     } catch (error) {
       toast.error(
-        error.response?.data?.message ||
-          "An error occurred. Please try again."
+        error?.response?.data?.message || "An error occurred. Please try again."
       );
-      setAuthenticated(false);
+      dispatch(setAuthenticated(false)); // Set the state to false on error
     } finally {
       setLoading(false);
     }
@@ -149,7 +156,11 @@ const SignIn = () => {
               <Label htmlFor="remember-me">Keep me logged in.</Label>
             </div>
 
-            <Button type="submit" className="bg-secondary">
+            <Button
+              type="submit"
+              className="bg-secondary"
+              disabled={loading} // Disable button while loading
+            >
               Login
             </Button>
           </form>
