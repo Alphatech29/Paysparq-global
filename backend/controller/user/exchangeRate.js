@@ -97,12 +97,18 @@ async function updateExchangeRates() {
   }
 }
 
+// Automatically update exchange rates every hour using cron job
+//cron.schedule("*/1 * * * *", updateExchangeRates); 
 
 // API endpoint to get exchange rates
 async function getExchangeRates(req, res) {
   try {
-    const { data, error } = await supabase.from("p_exchange_rates").select("*");
+    const { data, error } = await supabase.from("p_exchange_rates").select("*").order("last_updated", { ascending: false });
     if (error) throw error;
+
+    if (data.length === 0) {
+      return res.status(404).json({ message: "No exchange rates found in the database." });
+    }
 
     res.status(200).json({ rates: data });
   } catch (error) {

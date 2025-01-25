@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
 import Header from '../../../../components/dashboard/Header';
 import SideBar from '../../../../components/dashboard/SideBar';
@@ -8,9 +8,9 @@ import { FaDollarSign, FaExchangeAlt } from "react-icons/fa";
 import { IoPhonePortrait } from "react-icons/io5";
 import { MdCurrencyExchange } from "react-icons/md";
 import { FaBitcoin } from "react-icons/fa6";
+import LoadingSpinner from "./../../../../components/preload/ApiLoading";
 
-// Assuming 'rates' is an array passed to Dashboard
-const Dashboard = ({ rates }) => {
+const Dashboard = () => {
   const [showAlert, setShowAlert] = useState(true);
 
   return (
@@ -38,7 +38,7 @@ const Dashboard = ({ rates }) => {
           {/* Main Content */}
           <div className="content mt-4 pb-10">
             <Routes>
-              <Route path="/" element={<DefaultDashboard rates={rates} />} />
+              <Route path="/" element={<DefaultDashboard />} />
             </Routes>
             <Outlet />
           </div>
@@ -48,18 +48,69 @@ const Dashboard = ({ rates }) => {
   );
 };
 
-// DefaultDashboard Component with passed rates prop
-const DefaultDashboard = ({ rates = [] }) => {
-  const formatCurrency = (currencyName, amount) => {
-    // Format amount to currency, fallback to 'USD' if currencyName is invalid
-    const options = { style: 'currency', currency: currencyName || 'USD' };
-    try {
-      return new Intl.NumberFormat('en-US', options).format(amount);
-    } catch (error) {
-      return amount; // Return raw amount if currency formatting fails
-    }
-  };
+const DefaultDashboard = () => {
+  const [rates, setRates] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [date, setDate] = useState('');
+  
+  useEffect(() => {
+    const fetchRates = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('http://localhost:5000/api/exchange-rates');
+        const data = await response.json();
 
+        if (data && Array.isArray(data.rates)) {
+          const expectedCurrencies = ["USD", "EUR", "GBP"];
+          const rates = expectedCurrencies.map((currency) => {
+            const rate = data.rates.find((r) => r.currency_name === currency);
+            return rate
+              ? {
+                  currency: rate.currency_name,
+                  buying: rate.buying_rate,
+                  selling: rate.selling_rate,
+                  lastUpdated: rate.last_updated,
+                }
+              : { currency, rate: null, lastUpdated: data.date || "" };
+          });
+
+          setRates(rates);
+
+          // Format last_updated date to Nigeria Time (WAT)
+          const formattedDate = rates.length > 0 && rates[0].lastUpdated
+            ? new Date(new Date(rates[0].lastUpdated).getTime() + (60 * 60 * 1000))
+                .toLocaleString('en-US', {
+                    timeZone: 'Africa/Lagos',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                })
+            : "Invalid date"; 
+
+          setDate(formattedDate); 
+        } else {
+          setErrorMessage("Failed to fetch exchange rates.");
+        }
+      } catch (error) {
+        setErrorMessage("Error fetching exchange rates. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRates();
+  }, []);
+
+  const formatCurrency = (currencyName, amount) => {
+    if (typeof amount !== 'number') return amount; 
+    return `₦${amount.toLocaleString('en-US')}`;
+  };
+  
+  
+  
+  
   return (
     <div>
       <div>
@@ -125,108 +176,117 @@ const DefaultDashboard = ({ rates = [] }) => {
       </div>
 
       {/* Exchange Rates Table */}
+  
       <div className="overflow-x-auto mt-6 shadow-md shadow-primary-600/50 rounded-lg bg-pay">
-        <h1 className="py-2 text-lg pl-2 text-secondary">Exchange Rate</h1>
-        <Table hoverable className="bg-pay">
-          <Table.Head className="text-secondary bg-pay">
-            <Table.HeadCell className='text-secondary bg-pay'>Currency</Table.HeadCell>
-            <Table.HeadCell className='text-secondary bg-pay'>Buying</Table.HeadCell>
-            <Table.HeadCell className='text-secondary bg-pay'>Selling</Table.HeadCell>
-            <Table.HeadCell className='text-secondary bg-pay'>Last Update</Table.HeadCell>
-          </Table.Head>
-          <Table.Body className="divide-y">
-            {rates.length > 0 ? (
-              rates.map((rate, index) => (
-                <Table.Row key={index}>
-                  <Table.Cell>{rate.currency_name}</Table.Cell>
-                  <Table.Cell>{formatCurrency(rate.currency_name, rate.buying_rate)}</Table.Cell>
-                  <Table.Cell>{formatCurrency(rate.currency_name, rate.selling_rate)}</Table.Cell>
-                  <Table.Cell>{new Date(rate.lastUpdate).toLocaleString()}</Table.Cell>
-                </Table.Row>
-              ))
-            ) : (
-              <Table.Row>
-                <Table.Cell colSpan="4" className="text-center text-secondary">
-                  No exchange rates available
+      <h1 className="py-2 text-lg pl-2 text-secondary">Exchange Rate</h1>
+
+      {/* Show loading state inside the table */}
+      <Table hoverable className="bg-pay">
+        <Table.Head className="text-secondary bg-pay">
+          <Table.HeadCell className="text-secondary bg-pay">Currency</Table.HeadCell>
+          <Table.HeadCell className="text-secondary bg-pay">Buying</Table.HeadCell>
+          <Table.HeadCell className="text-secondary bg-pay">Selling</Table.HeadCell>
+          <Table.HeadCell className="text-secondary bg-pay">Last Update</Table.HeadCell>
+        </Table.Head>
+
+        <Table.Body className="divide-y">
+          {loading ? (
+            <Table.Row className='h-[200px]'>
+              <Table.Cell colSpan="4" className="text-center text-secondary ">
+                <LoadingSpinner/>
+              </Table.Cell>
+            </Table.Row>
+          ) : errorMessage ? (
+            <Table.Row>
+              <Table.Cell colSpan="4" className="text-center text-secondary">
+                {errorMessage}
+              </Table.Cell>
+            </Table.Row>
+          ) : rates.length > 0 ? (
+            rates.map((rate, index) => (
+              <Table.Row key={index} className="text-secondary">
+                <Table.Cell className="flex items-center">
+                  <img
+                    src={`/image/${rate.currency.toLowerCase()}.svg`}
+                    alt={rate.currency}
+                    className="w-6 h-6 mr-2 rounded-full"
+                  />
+                  {rate.currency}
+                </Table.Cell>
+                <Table.Cell>{formatCurrency(rate.currency, rate.buying)}</Table.Cell>
+                <Table.Cell>{formatCurrency(rate.currency, rate.selling)}</Table.Cell>
+                <Table.Cell>
+                  {rate.lastUpdated
+                    ? new Intl.DateTimeFormat('en-US', {
+                        timeZone: 'Africa/Lagos',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      }).format(new Date(rate.lastUpdated))
+                    : "N/A"}
                 </Table.Cell>
               </Table.Row>
-            )}
-          </Table.Body>
-        </Table>
-      </div>
+            ))
+          ) : (
+            <Table.Row >
+              <Table.Cell colSpan="4" className="text-center text-secondary">
+                No exchange rates available
+              </Table.Cell>
+            </Table.Row>
+          )}
+        </Table.Body>
+      </Table>
+    </div>
 
       {/* Transaction History */}
       <div className="overflow-x-auto mt-6 shadow-md shadow-primary-600/50 rounded-lg bg-pay">
-      <h1 className="py-2 text-lg pl-2 text-secondary">Transaction</h1>
-  <Table hoverable className='bg-pay'>
-    <Table.Head className='text-secondary bg-pay'>
-      <Table.HeadCell className='bg-pay'>Transaction ID</Table.HeadCell>
-      <Table.HeadCell className='text-secondary bg-pay'>Date</Table.HeadCell>
-      <Table.HeadCell className='text-secondary bg-pay'>Description</Table.HeadCell>
-      <Table.HeadCell className='text-secondary bg-pay'>Amount (₦)</Table.HeadCell>
-      <Table.HeadCell className='text-secondary bg-pay'>Type</Table.HeadCell>
-      <Table.HeadCell className='text-secondary bg-pay'>Status</Table.HeadCell>
-    </Table.Head>
-    <Table.Body className="divide-y">
-      <Table.Row className='text-secondary bg-pay'>
-        <Table.Cell className="whitespace-nowrap font-medium">
-          TXN001
-        </Table.Cell>
-        <Table.Cell>2025-01-23</Table.Cell>
-        <Table.Cell>Purchase of Materials</Table.Cell>
-        <Table.Cell>₦15,000</Table.Cell>
-        <Table.Cell>Debit</Table.Cell>
-        <Table.Cell>Completed</Table.Cell>
-      
-      </Table.Row>
-      <Table.Row className='text-secondary bg-pay'>
-        <Table.Cell className="whitespace-nowrap font-medium ">
-          TXN002
-        </Table.Cell>
-        <Table.Cell>2025-01-22</Table.Cell>
-        <Table.Cell>Payment Received</Table.Cell>
-        <Table.Cell>₦25,000</Table.Cell>
-        <Table.Cell>Credit</Table.Cell>
-        <Table.Cell>Pending</Table.Cell>
-       
-      </Table.Row>
-      <Table.Row className='text-secondary bg-pay'>
-        <Table.Cell className="whitespace-nowrap font-medium ">
-          TXN003
-        </Table.Cell>
-        <Table.Cell>2025-01-21</Table.Cell>
-        <Table.Cell>Subscription Payment</Table.Cell>
-        <Table.Cell>₦5,000</Table.Cell>
-        <Table.Cell>Debit</Table.Cell>
-        <Table.Cell>Completed</Table.Cell>
-      
-      </Table.Row>
-      <Table.Row className='text-secondary bg-pay'>
-        <Table.Cell className="whitespace-nowrap font-medium">
-          TXN004
-        </Table.Cell>
-        <Table.Cell>2025-01-20</Table.Cell>
-        <Table.Cell>Refund Issued</Table.Cell>
-        <Table.Cell>₦10,000</Table.Cell>
-        <Table.Cell>Debit</Table.Cell>
-        <Table.Cell>Failed</Table.Cell>
-    
-      </Table.Row>
-      <Table.Row className='text-secondary bg-pay'>
-        <Table.Cell className="whitespace-nowrap font-medium ">
-          TXN005
-        </Table.Cell>
-        <Table.Cell>2025-01-19</Table.Cell>
-        <Table.Cell>Salary Payment</Table.Cell>
-        <Table.Cell>₦50,000</Table.Cell>
-        <Table.Cell>Credit</Table.Cell>
-        <Table.Cell>Completed</Table.Cell>
-     
-      </Table.Row>
-    </Table.Body>
-  </Table>
-</div>
-
+        <h1 className="py-2 text-lg pl-2 text-secondary">Transaction</h1>
+        <Table hoverable className='bg-pay'>
+          <Table.Head className='text-secondary bg-pay'>
+            <Table.HeadCell className='bg-pay'>Transaction ID</Table.HeadCell>
+            <Table.HeadCell className='text-secondary bg-pay'>Date</Table.HeadCell>
+            <Table.HeadCell className='text-secondary bg-pay'>Description</Table.HeadCell>
+            <Table.HeadCell className='text-secondary bg-pay'>Amount (₦)</Table.HeadCell>
+            <Table.HeadCell className='text-secondary bg-pay'>Type</Table.HeadCell>
+            <Table.HeadCell className='text-secondary bg-pay'>Status</Table.HeadCell>
+          </Table.Head>
+          <Table.Body className="divide-y">
+            <Table.Row className='text-secondary'>
+              <Table.Cell>TX12345</Table.Cell>
+              <Table.Cell>2025-01-25 12:00 PM</Table.Cell>
+              <Table.Cell>Payment to Vendor</Table.Cell>
+              <Table.Cell>10,000</Table.Cell>
+              <Table.Cell>Debit</Table.Cell>
+              <Table.Cell>Completed</Table.Cell>
+            </Table.Row>
+            <Table.Row className='text-secondary'>
+              <Table.Cell>TX12345</Table.Cell>
+              <Table.Cell>2025-01-25 12:00 PM</Table.Cell>
+              <Table.Cell>Payment to Vendor</Table.Cell>
+              <Table.Cell>10,000</Table.Cell>
+              <Table.Cell>Debit</Table.Cell>
+              <Table.Cell>Completed</Table.Cell>
+            </Table.Row>
+            <Table.Row className='text-secondary'>
+              <Table.Cell>TX12345</Table.Cell>
+              <Table.Cell>2025-01-25 12:00 PM</Table.Cell>
+              <Table.Cell>Payment to Vendor</Table.Cell>
+              <Table.Cell>10,000</Table.Cell>
+              <Table.Cell>Debit</Table.Cell>
+              <Table.Cell>Completed</Table.Cell>
+            </Table.Row>
+            <Table.Row className='text-secondary'>
+              <Table.Cell>TX12345</Table.Cell>
+              <Table.Cell>2025-01-25 12:00 PM</Table.Cell>
+              <Table.Cell>Payment to Vendor</Table.Cell>
+              <Table.Cell>10,000</Table.Cell>
+              <Table.Cell>Debit</Table.Cell>
+              <Table.Cell>Completed</Table.Cell>
+            </Table.Row>
+          </Table.Body>
+        </Table>
+      </div>
     </div>
   );
 };
