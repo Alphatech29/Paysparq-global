@@ -1,12 +1,13 @@
 const bcrypt = require("bcryptjs");
-const supabase = require("../../models/supaBase/supaBaseClient");
+const db = require("../../models/db");  
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 
+
 // Middleware to limit login attempts
 const signInLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, 
-  max: 5, 
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 5, // Maximum of 5 attempts per minute
   message: "Too many login attempts, please try again later.",
 });
 
@@ -21,50 +22,53 @@ const signIn = async (req, res) => {
 
     const sanitizedEmailOrUsername = emailOrUsername.trim();
 
-    // Supabase query with correct column names
-    const query = `email.eq.${sanitizedEmailOrUsername},username.eq.${sanitizedEmailOrUsername}`;
-    const { data: user, error } = await supabase
-      .from("p_users")
-      .select("uid, email, username, password")
-      .or(query)
-      .maybeSingle();
+    // MySQL query to check if the user exists by email or username
+    const query = `
+      SELECT uid, email, username, password 
+      FROM users 
+      WHERE email = ? OR username = ?
+    `;
+    
+    db.query(query, [sanitizedEmailOrUsername, sanitizedEmailOrUsername], async (error, results) => {
+      if (error) {
+        console.error("MySQL query error:", error.message || error);
+        return res.status(500).json({ message: "Database query failed" });
+      }
 
-    if (error) {
-      console.error("Supabase query error:", error.message || error);
-      return res.status(500).json({ message: "Database query failed" });
-    }
+      if (results.length === 0) {
+        return res.status(404).json({ message: "Invalid credentials" });
+      }
 
-    if (!user) {
-      return res.status(404).json({ message: "Invalid credentials" });
-    }
+      const user = results[0];
+      const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Incorrect password" });
-    }
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Incorrect password" });
+      }
 
-    if (!process.env.JWT_SECRET) {
-      console.error("JWT_SECRET is not defined in the environment variables.");
-      return res.status(500).json({ message: "Server configuration error" });
-    }
+      if (!process.env.JWT_SECRET) {
+        console.error("JWT_SECRET is not defined in the environment variables.");
+        return res.status(500).json({ message: "Server configuration error" });
+      }
 
-    const token = jwt.sign(
-      { userUid: user.uid, email: user.email, username: user.username }, // 
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+      const token = jwt.sign(
+        { userUid: user.uid, email: user.email, username: user.username }, // payload
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      );
 
-    res.cookie("authToken", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    });
+      res.cookie("authToken", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Set to true in production
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+      });
 
-    return res.status(200).json({
-      message: "Login successful",
-      redirectUrl: "/user/dashboard",
-      token, // Send token for frontend storage
-      user: { uid: user.uid, email: user.email, username: user.username },
+      return res.status(200).json({
+        message: "Login successful",
+        redirectUrl: "/user/dashboard",
+        token, // Send token for frontend storage
+        user: { uid: user.uid, email: user.email, username: user.username },
+      });
     });
   } catch (error) {
     console.error("Sign-in error:", error);

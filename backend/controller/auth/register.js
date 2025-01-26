@@ -1,5 +1,5 @@
 const bcrypt = require("bcryptjs");
-const supabase = require("../../models/supaBase/supaBaseClient");
+const db = require("../../models/db");  
 const validator = require("validator");
 
 const signUp = async (req, res) => {
@@ -20,51 +20,56 @@ const signUp = async (req, res) => {
     }
 
     // Check for duplicates (email, username, phone_number)
-    const { data: existingUser, error: fetchError } = await supabase
-      .from("p_users")
-      .select("uid")  
-      .or(`email.eq.${email},username.eq.${username},phone_number.eq.${phone_number}`)
-      .maybeSingle();
+    db.query(
+      `SELECT uid, email, username, phone_number FROM users WHERE email = ? OR username = ? OR phone_number = ?`,
+      [email, username, phone_number],
+      async (error, results) => {
+        if (error) {
+          console.error("Database error:", error);
+          return res.status(500).json({ message: "Internal server error" });
+        }
 
-    if (fetchError) {
-      console.error("Error checking for existing user:", fetchError);
-      return res.status(500).json({ message: "Error checking for existing user" });
-    }
+        if (results.length > 0) {
+          // Check if the email, username, or phone_number exists
+          for (let user of results) {
+            if (user.email === email) {
+              return res.status(409).json({ message: "Email is already in use" });
+            }
+            if (user.username === username) {
+              return res.status(409).json({ message: "Username is already taken" });
+            }
+            if (user.phone_number === phone_number) {
+              return res.status(409).json({ message: "Phone number is already registered" });
+            }
+          }
+        }
 
-    if (existingUser) {
-      return res.status(409).json({ message: "User with provided details already exists" });
-    }
+        // Hash the password
+        try {
+          const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+          // Insert the new user into the database
+          db.query(
+            `INSERT INTO users (fullname, email, username, country, phone_number, password) VALUES (?, ?, ?, ?, ?, ?)`,
+            [fullname, email, username, country, phone_number, hashedPassword],
+            (error, results) => {
+              if (error) {
+                console.error("Database error:", error);
+                return res.status(500).json({ message: "Internal server error" });
+              }
 
-    // Insert the new user
-    console.log(newUser);
-    const { data: newUser, error: insertError } = await supabase
-      .from("p_users")
-      .insert([
-        {
-          fullname,
-          email,
-          username,
-          country,
-          phone_number,
-          password: hashedPassword,
-        },
-      ])
-      .select("uid")
-      .single();
-
-    if (insertError) {
-      console.error("Error inserting new user:", insertError);
-      return res.status(500).json({ message: "Error inserting new user" });
-    }
-
-    // Respond to the client
-    res.status(201).json({
-      message: "User created successfully",
-      userId: newUser.uid,  
-    });
+              res.status(201).json({
+                message: "User created successfully",
+                userId: results.insertId,  // This is the auto-generated ID
+              });
+            }
+          );
+        } catch (error) {
+          console.error("Error hashing password:", error);
+          res.status(500).json({ message: "Error hashing password" });
+        }
+      }
+    );
   } catch (error) {
     console.error("Error during sign-up:", error);
     res.status(500).json({ message: "Internal server error" });

@@ -8,7 +8,7 @@ import Home from "./pages/home/home";
 import NotFound from "./pages/NotFound";
 import SignUp from "./pages/auth/SignUp";
 import SignIn from "./pages/auth/SignIn";
-import UserRoutes from "./userRoute/UserRoutes"; 
+import UserRoutes from "./userRoute/UserRoutes";
 import Preload from "../components/preload/Preload";
 import { Provider, useDispatch } from "react-redux";
 import store from "./redux/reduxStore";
@@ -33,8 +33,8 @@ Layout.propTypes = {
 
 function App() {
   return (
-    <Provider store={store}> 
-      <AuthChecker /> {/* Dispatch checkAuth */}
+    <Provider store={store}>
+      <AuthChecker /> {/* Keeps the auth check logic intact */}
       <Router>
         <Routes>
           {/* Public Routes */}
@@ -72,10 +72,7 @@ function App() {
           />
 
           {/* User protected routes */}
-          <Route
-            path="user/*"
-            element={<UserRoutes />}
-          />
+          <Route path="user/*" element={<UserRoutes />} />
         </Routes>
       </Router>
     </Provider>
@@ -84,10 +81,12 @@ function App() {
 
 function AuthChecker() {
   const dispatch = useDispatch();
+
   useEffect(() => {
-    dispatch(checkAuth()); // Dispatch checkAuth action to check authentication status
+    dispatch(checkAuth()); 
   }, [dispatch]);
-  return null;
+
+  return null; 
 }
 
 export default App;

@@ -53,7 +53,7 @@ const SideBar = () => {
             Crypto Trading
           </Dropdown.Item>
           <Dropdown.Item icon={HiGift} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            Gift Cards Trading
+            <NavLink to='/user/giftcard'>Gift Cards Trading</NavLink>
           </Dropdown.Item>
         </Dropdown>
 

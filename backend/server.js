@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const cors = require('cors');
 const bodyParser = require("body-parser");
-const authRoutes = require('./routes/router'); 
+const apiRoutes = require('./routes/router'); 
 
 
 dotenv.config();
@@ -19,26 +19,23 @@ app.use(express.json());
 app.use(bodyParser.json());
 
 // Define routes
-app.use('/api', authRoutes);
+app.use('/api', apiRoutes);
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  const rootDir = path.resolve(__dirname, 'clients', 'dist');
-  app.use(express.static(rootDir));
+// Serve frontend files
+const rootDir = path.resolve(__dirname, 'clients', 'dist');
+app.use(express.static(rootDir));
 
-  app.get('*', (req, res) => {
-    if (!req.url.startsWith('/api')) {
-      res.sendFile(path.join(rootDir, 'index.html'));
-    }
-  });
-} 
+app.get('*', (req, res) => {
+  if (!req.url.startsWith('/api')) {
+    res.sendFile(path.join(rootDir, 'index.html'));
+  }
+});
 
-// Error handling middleware
+// Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send({ message: 'Something went wrong!' });
 });
-
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

@@ -10,7 +10,6 @@ import LoadingSpinner from "../../../components/preload/ApiLoading";
 import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
-  const BASE_URL = import.meta.env.VITE_BASE_URL; // Log the value of BASE_URL to verify
   const navigate = useNavigate();
 
   const [fullname, setFullname] = useState("");
@@ -74,21 +73,9 @@ const SignUp = () => {
     }
 
     setLoading(true);
-
-    // Log the payload to inspect before sending
-    console.log("Payload being sent:", {
-      fullname,
-      email,
-      username,
-      password,
-      country: country.value,
-      phone_number,
-      referral,
-    });
-
     try {
       const response = await axios.post(
-        `/api/auth/register`,
+        "/api/auth/register", 
         {
           fullname,
           email,
@@ -104,6 +91,7 @@ const SignUp = () => {
           },
         }
       );
+      
 
       // Inspect the response
       if (response.status === 201) {
@@ -117,7 +105,7 @@ const SignUp = () => {
       }
     } catch (error) {
       // Improved error handling
-      console.error("Error during sign-up:", error); // Log the full error object
+      console.error("Error during sign-up:", error); 
       if (error.response) {
         console.error("Backend error response:", error.response);
         toast.error(error.response.data.message || "An error occurred. Please try again.");

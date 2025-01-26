@@ -1,11 +1,12 @@
 // src/components/Header.jsx
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { selectAuth } from "../../src/redux/authSlice"; 
+import { selectAuth } from "../../src/redux/authSlice";
+
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const authenticated = useSelector(selectAuth);  // Use Redux to get authentication state
+  const authenticated = useSelector(selectAuth); // Fetch authentication state
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -22,14 +23,20 @@ function Header() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full z-40 ${scrolled ? "bg-primary-100" : "bg-transparent"} backdrop-blur-md transition-all duration-300`}
+      className={`fixed top-0 left-0 w-full z-40 ${
+        scrolled ? "bg-primary-100" : "bg-transparent"
+      } backdrop-blur-md transition-all duration-300`}
       style={{
         backgroundColor: scrolled ? "rgba(130, 53, 12, 0.9)" : "transparent",
       }}
     >
       <div className="pc:px-24 mobile:px-5 mobile:pt-4 pc:py-2 flex items-center justify-between mx-auto">
         <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-          <img src="/image/footer-logo.png" className="h-12" alt="Paysparq Logo" />
+          <img
+            src="/image/footer-logo.png"
+            className="h-12"
+            alt="Paysparq Logo"
+          />
         </a>
 
         <div className="nav-menu flex items-end justify-end w-[50%]">
@@ -42,11 +49,26 @@ function Header() {
             onClick={toggleMenu}
           >
             <span className="sr-only">Open main menu</span>
-            <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M1 1h15M1 7h15M1 13h15"/>
+            <svg
+              className="w-5 h-5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 17 14"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="3"
+                d="M1 1h15M1 7h15M1 13h15"
+              />
             </svg>
           </button>
-          <div className={`pc:block ${menuOpen ? "block" : "hidden"}`} id="navbar-default">
+          <div
+            className={`pc:block ${menuOpen ? "block" : "hidden"}`}
+            id="navbar-default"
+          >
             <ul className="font-medium w-full items-end justify-end text-base font-interSB pc:flex gap-6 mobile:hidden">
               <li>
                 <a href="/" className="py-1 text-white" aria-current="page">
@@ -70,13 +92,19 @@ function Header() {
               </li>
               {authenticated ? (
                 <li>
-                  <a href="/user/dashboard" className="text-white text-base bg-primary-600 rounded-md px-5 py-2 hover:border hover:border-primary-600 hover:bg-transparent !hover:border-primary-600">
+                  <a
+                    href="/user/dashboard"
+                    className="text-white text-base bg-primary-600 rounded-md px-5 py-2 hover:border hover:border-primary-600 hover:bg-transparent !hover:border-primary-600"
+                  >
                     Dashboard
                   </a>
                 </li>
               ) : (
                 <li>
-                  <a href="/auth/login" className="text-white text-base bg-primary-600 rounded-md px-5 py-2 hover:border hover:border-primary-600 hover:bg-transparent !hover:border-primary-600">
+                  <a
+                    href="/auth/login"
+                    className="text-white text-base bg-primary-600 rounded-md px-5 py-2 hover:border hover:border-primary-600 hover:bg-transparent !hover:border-primary-600"
+                  >
                     Login
                   </a>
                 </li>

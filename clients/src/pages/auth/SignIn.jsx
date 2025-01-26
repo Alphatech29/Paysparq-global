@@ -12,7 +12,7 @@ import { useDispatch } from "react-redux";
 import { setAuthenticated } from "../../redux/authSlice";
 
 const SignIn = () => {
-  const dispatch = useDispatch(); // Redux dispatch to set auth state
+  const dispatch = useDispatch(); 
 
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");

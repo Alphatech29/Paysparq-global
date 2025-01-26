@@ -10,10 +10,8 @@ async function fetchExchangeRates() {
     const response = await axios.get(API_URL);
     const rates = response.data.conversion_rates;
 
-    // Get the Naira (NGN) exchange rate
     const NGNRate = rates.NGN;
-
-    // Calculate buying and selling rates in Naira
+a
     return {
       USD: { buying: rates.USD * NGNRate, selling: rates.USD * NGNRate },
       EUR: { buying: rates.EUR * NGNRate, selling: rates.EUR * NGNRate },
