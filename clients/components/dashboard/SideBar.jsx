@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Dropdown } from "flowbite-react";
 import { 
   HiViewGrid, HiGift, HiOutlineAdjustments, HiOutlineRss, HiOutlineWifi, 
@@ -10,42 +10,42 @@ import { CiCreditCard1, CiBank } from "react-icons/ci";
 import { MdManageAccounts, MdOutlineAccountTree, MdPayments } from "react-icons/md";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { NavLink, useNavigate } from 'react-router-dom'; 
-import { useDispatch, useSelector } from 'react-redux';
-import { logout } from "../../src/redux/authSlice";
+import { AuthContext } from '../control/AuthContext'; 
 
 const SideBar = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  
-  // Get the authentication status from Redux store
-  const authenticated = useSelector((state) => state.auth.authenticated);
+  const { logOut } = useContext(AuthContext);
 
-  const handleLogout = () => {
-    dispatch(logout()); 
-    navigate("/auth/login"); 
-  };
 
   return (
     <div className='bg-paysparq w-64 h-screen fixed flex flex-col items-start justify-start px-4 z-20'>
+      {/* Logo Section */}
       <div className='pt-1 pb-5'>
         <a href="/"> 
           <img src="/image/paysparq-logo.png" alt="Footer Logo" className="h-12" />
         </a>
       </div>
+
+      {/* Sidebar Navigation */}
       <div className='gap-4 flex flex-col'>
+        {/* Dashboard Link */}
         <span>
-          <NavLink to="/user/dashboard" activeclassname="dashboard" className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'>
+          <NavLink 
+            to="/user/dashboard" 
+            className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'
+          >
             <HiViewGrid /> <span>Dashboard</span>
           </NavLink>
         </span>
 
+        {/* Trading Asset Dropdown */}
         <Dropdown 
-          label={
+          label={(
             <div className="flex items-center space-x-2 text-secondary">
               <HiOutlineAdjustments className="w-5 h-5" />
               <span>Trading Asset</span>
             </div>
-          } 
+          )} 
           inline 
           className="bg-pay border-none shadow-none"
         >
@@ -57,13 +57,14 @@ const SideBar = () => {
           </Dropdown.Item>
         </Dropdown>
 
+        {/* Bills & Airtime Dropdown */}
         <Dropdown 
-          label={
+          label={(
             <div className="flex items-center space-x-2 text-secondary">
               <HiOutlineRss className="w-5 h-5" />
               <span>Bills & Airtime</span>
             </div>
-          } 
+          )} 
           inline 
           className="bg-pay border-none shadow-none"
         >
@@ -78,31 +79,36 @@ const SideBar = () => {
           </Dropdown.Item>
         </Dropdown>
 
+        {/* Payment Dropdown */}
         <Dropdown 
-          label={
+          label={(
             <div className="flex items-center space-x-2 text-secondary">
               <MdPayments className="w-5 h-5" />
               <span>Payment</span>
             </div>
-          } 
+          )} 
           inline 
           className="bg-pay border-none shadow-none"
         >
           <Dropdown.Item icon={CiBank} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-          <NavLink to="/user/withdrawal">Withdraw</NavLink>
+            <NavLink to="/user/transfer">Tranfer</NavLink>
           </Dropdown.Item>
           <Dropdown.Item icon={IoIosAddCircleOutline} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
             <NavLink to="/user/addfund">Fund Wallet</NavLink>
           </Dropdown.Item>
         </Dropdown>
 
+        {/* Other Navigation Links */}
         <span>
           <a href="/user/history" className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'>
             <HiOutlineNewspaper /> <span>Transaction History</span>
           </a>
         </span>
         <span>
-          <NavLink to="/user/airtime-cash" activeclassname="airtime-to-cash" className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'>
+          <NavLink 
+            to="/user/airtime-cash" 
+            className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'
+          >
             <HiArrowsExpand /> <span>Airtime to cash</span>
           </NavLink>
         </span>
@@ -122,13 +128,14 @@ const SideBar = () => {
           </a>
         </span>
 
+        {/* Settings Dropdown */}
         <Dropdown 
-          label={
+          label={(
             <div className="flex items-center space-x-2 text-secondary">
               <HiCog className="w-5 h-5" />
               <span>Settings</span>
             </div>
-          } 
+          )} 
           inline 
           className="bg-pay border-none shadow-none"
         >
@@ -137,7 +144,7 @@ const SideBar = () => {
           </Dropdown.Item>
           <Dropdown.Item
             icon={HiLogout}
-            onClick={authenticated ? handleLogout : null}
+            onClick={logOut} // Handles logout when clicked
           >
             Sign out
           </Dropdown.Item>

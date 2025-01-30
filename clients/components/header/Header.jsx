@@ -1,12 +1,10 @@
-// src/components/Header.jsx
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { selectAuth } from "../../src/redux/authSlice";
+import { AuthContext } from "../control/AuthContext"; 
 
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const authenticated = useSelector(selectAuth); // Fetch authentication state
+  const { authenticated} = AuthContext(); 
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -92,8 +90,8 @@ function Header() {
               </li>
               {authenticated ? (
                 <li>
-                  <a
-                    href="/user/dashboard"
+                 <a
+                    href="/user.dashboard"
                     className="text-white text-base bg-primary-600 rounded-md px-5 py-2 hover:border hover:border-primary-600 hover:bg-transparent !hover:border-primary-600"
                   >
                     Dashboard

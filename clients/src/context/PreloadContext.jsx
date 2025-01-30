@@ -1,4 +1,4 @@
-
+// In PreloadContext.jsx
 import { createContext, useState, useContext } from 'react';
 
 const PreloadContext = createContext();
@@ -7,7 +7,7 @@ export const usePreload = () => {
   return useContext(PreloadContext);
 };
 
-export const PreloadProvider = ({ children }) => {
+const PreloadProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   return (
@@ -16,3 +16,5 @@ export const PreloadProvider = ({ children }) => {
     </PreloadContext.Provider>
   );
 };
+
+export default PreloadProvider;
