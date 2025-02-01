@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../control/AuthContext"; 
 
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { authenticated} = AuthContext(); 
+  // Use useContext to access AuthContext values
+  const { authenticated } = useContext(AuthContext);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -91,7 +92,7 @@ function Header() {
               {authenticated ? (
                 <li>
                  <a
-                    href="/user.dashboard"
+                    href="/user/dashboard"
                     className="text-white text-base bg-primary-600 rounded-md px-5 py-2 hover:border hover:border-primary-600 hover:bg-transparent !hover:border-primary-600"
                   >
                     Dashboard

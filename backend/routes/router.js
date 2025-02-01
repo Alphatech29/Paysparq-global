@@ -4,6 +4,9 @@ const signUp = require("../controller/auth/register");
 const { signIn, logout, signInLimiter } = require("../controller/auth/login");
 const { getExchangeRates } = require("../controller/user/exchangeRate");
 const {  getUserDetails} = require('../controller/user/dashboard');
+const { handleTransfer,getUserFullName } = require('../controller/user/transfer');
+const { handleDepositRequest } = require('../controller/utils/deposit')
+const { getUserTransactions } = require('../controller/user/transactionHistory');
 
 
 
@@ -19,6 +22,14 @@ router.get("/exchange-rates", getExchangeRates);
 // Route to get the user account balance
 router.get("/user/:userUid", getUserDetails);
 
+// Route to handle transfer
+router.post("/transfer", handleTransfer); router.get("/transfer", getUserFullName);
+
+// Route to handle fund deposit
+router.post('/deposit', handleDepositRequest);
+
+// Route to fetch transactions for a specific user
+router.get('/transactions/:userId', getUserTransactions);
 
 
 

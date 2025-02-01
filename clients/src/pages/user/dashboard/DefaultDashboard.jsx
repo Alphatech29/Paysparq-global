@@ -3,9 +3,9 @@ import { FaDollarSign, FaExchangeAlt } from "react-icons/fa";
 import { IoPhonePortrait } from "react-icons/io5";
 import { MdCurrencyExchange } from "react-icons/md";
 import { FaBitcoin } from "react-icons/fa6";
-import { Table } from "flowbite-react";
 import ExchangeRate from "../../../../components/dashboard/ExchageRate";
 import DashboardLogic from '../../../../components/dashboard/dashboard'; 
+import TransactionHistory from '../../../../components/dashboard/transactionHistory';
 
 const DefaultDashboard = () => {
   const { userData } = DashboardLogic(); 
@@ -22,14 +22,14 @@ const DefaultDashboard = () => {
           <div>
             <span className="text-base">Balance</span>
             <h2 className="text-3xl">
-              <strong>${userData?.balance || '0.00'}</strong>
+              <strong>₦{userData?.balance || '0.00'}</strong>
             </h2>
           </div>
           <hr className="w-full border--1 border-pay/50 mt-4" />
           <div className="mt-4">
             <span className="text-base">ACCOUNT NUMBER</span>
             <h2 className="text-sm">
-              <strong>7395285394</strong>
+              <strong>{userData?.accountNumber}</strong>
             </h2>
           </div>
         </div>
@@ -71,29 +71,7 @@ const DefaultDashboard = () => {
         </div>
       </div>
       <ExchangeRate />
-      <div className="overflow-x-auto mt-6 shadow-md shadow-primary-600/50 rounded-lg bg-pay">
-        <h1 className="py-2 text-lg pl-2 text-secondary">Transaction</h1>
-        <Table hoverable className="bg-pay">
-          <Table.Head className="text-secondary bg-pay">
-            <Table.HeadCell className="bg-pay">Transaction ID</Table.HeadCell>
-            <Table.HeadCell className="text-secondary bg-pay">Date</Table.HeadCell>
-            <Table.HeadCell className="text-secondary bg-pay">Description</Table.HeadCell>
-            <Table.HeadCell className="text-secondary bg-pay">Amount (₦)</Table.HeadCell>
-            <Table.HeadCell className="text-secondary bg-pay">Type</Table.HeadCell>
-            <Table.HeadCell className="text-secondary bg-pay">Status</Table.HeadCell>
-          </Table.Head>
-          <Table.Body className="divide-y">
-            <Table.Row className="text-secondary">
-              <Table.Cell>TX12345</Table.Cell>
-              <Table.Cell>2025-01-25 12:00 PM</Table.Cell>
-              <Table.Cell>Payment to Vendor</Table.Cell>
-              <Table.Cell>10,000</Table.Cell>
-              <Table.Cell>Debit</Table.Cell>
-              <Table.Cell>Completed</Table.Cell>
-            </Table.Row>
-          </Table.Body>
-        </Table>
-      </div>
+      <TransactionHistory/>
     </div>
   );
 };

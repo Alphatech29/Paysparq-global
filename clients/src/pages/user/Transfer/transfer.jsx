@@ -1,61 +1,36 @@
-import React, { useState, useEffect } from "react";
-import { Button, Select, Label, TextInput, Textarea } from "flowbite-react";
+import React, { useState } from "react";
+import { Button } from "flowbite-react";
+import { NavLink } from "react-router-dom";
+import Paysparq from "../Transfer/paysparq";
 
-
-function Withdrawal() {
+function Transfer() {
+  const [openModal, setOpenModal] = useState(false); 
 
   return (
-    <div className="flex flex-col justify-center items-center w-full bg-pay p-5 h-full shadow-md shadow-primary-600/50 rounded-lg">
-      <form className="flex max-w-md flex-col gap-4 w-[50%] border border-primary-600 rounded-lg p-4">
-        {/* Account Number Input */}
-        <div>
-          <div className="mb-2 block">
-            <Label htmlFor="AccountNumber" value="Account Number" />
-          </div>
-          <TextInput id="AccountNumber" type="text" placeholder="9129079450" required />
+    <div className="flex flex-col justify-center gap-4 items-start w-full bg-pay p-5 h-full shadow-md shadow-primary-600/50 rounded-lg">
+      <NavLink to="/user/transfer/others">
+        <div className="w-[70%] border-primary-600/50 border rounded-md px-3 py-3 cursor-pointer">
+          <h1 className="text-lg font-interSB">Transfer to Bank Account</h1>
+          <p className="text-sm">
+            Transfer funds seamlessly from your Paysparq balance to one or multiple bank accounts instantly.
+          </p>
         </div>
+      </NavLink>
 
-        {/* Bank Selection */}
-        <div>
-          <div className="mb-2 block">
-            <Label htmlFor="banks" value="Choose Bank" />
-          </div>
-          <Select id="banks" required>
-            <option value="" disabled defaultValue>
-              Choose Bank
-            </option>
-            <option value="Uba">
-              Uba
-            </option>
-            <option value="gtbank">
-              Gtbank
-            </option>
-          </Select>
-        </div>
+      <div
+        className="w-[50%] border-primary-600/50 border rounded-md px-3 py-3 cursor-pointer"
+        onClick={() => setOpenModal(true)} 
+      >
+        <h1 className="text-lg font-interSB">Transfer to Paysparq</h1>
+        <p className="text-sm">
+          Send money in Naira from one Paysparq account to another instantly using a phone number.
+        </p>
+      </div>
 
-        {/* Amount Input */}
-        <div>
-          <div className="mb-2 block">
-            <Label htmlFor="Amount" value="Amount" />
-          </div>
-          <TextInput id="Amount" type="text" placeholder="$10,000" className="focus:ring-2 focus:ring-primary-600" required />
-        </div>
-
-        {/* Narration */}
-        <div>
-          <div className="mb-2 block">
-            <Label htmlFor="narration" value="Narration" />
-          </div>
-          <Textarea id="narration" placeholder="Narration" rows={3} className="focus:ring-2 focus:ring-primary-600" required />
-        </div>
-
-        {/* Submit Button */}
-        <Button type="submit" className="bg-primary-600">
-          Withdraw
-        </Button>
-      </form>
+      {/* Ensure we pass both openModal and setOpenModal as props */}
+      <Paysparq openModal={openModal} setOpenModal={setOpenModal} />
     </div>
   );
 }
 
-export default Withdrawal;
+export default Transfer;

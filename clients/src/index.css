@@ -59,3 +59,11 @@
   height: 100vh;
   display: flex;
 }
+.tabs [role="tab"]:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.tabs [role="tab"][aria-selected="true"] {
+  border-bottom: 2px solid #F66B04 !important;
+}
+

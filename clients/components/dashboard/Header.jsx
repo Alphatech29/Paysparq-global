@@ -4,7 +4,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import DashboardLogic from "../../components/dashboard/dashboard"
 
 function Header() {
-  const { userData } = DashboardLogic(); 
+  const { userData } = DashboardLogic() 
  
   return (
     <div className="w-[81.5%] h-auto bg-pay px-5 py-1 flex items-center justify-between border-b shadow border-b-primary-600 fixed top-0 right-0 z-10">
@@ -12,8 +12,8 @@ function Header() {
        
       </div>
       <div className="flex items-center justify-center gap-5">
-        <span className="p-2 bg-primary-600 text-pay text-sm rounded-lg font-interSB">${userData?.balance || '0.00'}</span>
-        <Avatar img="https://flowbite.com/docs/images/people/profile-picture-5.jpg" rounded alt="Profile Picture" />
+        <span className="p-2 bg-primary-600 text-pay text-sm rounded-lg font-interSB">₦{userData?.balance || '0.00'}</span>
+        <Avatar img={userData?.Avatar} rounded alt="Profile Picture" />
         
         <div className="flex items-center gap-2">
           <NotificationsIcon />

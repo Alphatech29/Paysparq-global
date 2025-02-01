@@ -22,24 +22,38 @@ CREATE TABLE exchage_rate(
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 )
 
+CREATE TABLE transactions (
+    txn_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+    user_id BIGINT NOT NULL,
+    transaction_type VARCHAR(50) NOT NULL,
+    amount DECIMAL(65,2) NOT NULL, 
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    status VARCHAR(20) DEFAULT 'pending',
+    description TEXT,
+    transaction_no VARCHAR(50) NOT NULL UNIQUE, -- Unique transaction number
+    FOREIGN KEY (user_id) REFERENCES users(uid) ON DELETE CASCADE
+) DEFAULT CHARSET=utf8;
+
+
+
+
+-- Bank Transfer History table: Stores bank transfer details for users
 CREATE TABLE bank_transfer_history (
-    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    sender_id BIGINT NOT NULL,
-    receiver_id BIGINT NULL,  -- Nullable, only used for internal transfers
-    receiver_name VARCHAR(255) NOT NULL,
-    receiver_bank VARCHAR(255) NULL,  -- Null if transferring to another user
-    receiver_account_number VARCHAR(50) NULL,  -- Null if internal transfer
-    amount DECIMAL(10,2) NOT NULL,
-    transaction_type ENUM('deposit', 'withdrawal', 'transfer') NOT NULL,
-    destination_type ENUM('Transfer to bank', 'Transfer to Paysparq') NOT NULL,
-    status ENUM('pending', 'successful', 'failed') NOT NULL DEFAULT 'pending',
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+    sender_id BIGINT NOT NULL, 
+    receiver_id BIGINT NULL, 
+    receiver_name VARCHAR(255) NOT NULL,  
+    receiver_bank VARCHAR(255) NULL, 
+    receiver_account_number VARCHAR(50) NULL,
+    amount DECIMAL(65,2) NOT NULL,  
+    transaction_type VARCHAR(50) NOT NULL,  
+    destination_type VARCHAR(50) NOT NULL, 
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
     transaction_reference VARCHAR(255) NOT NULL UNIQUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (sender_id) REFERENCES users(uid) ON DELETE CASCADE,
     FOREIGN KEY (receiver_id) REFERENCES users(uid) ON DELETE CASCADE
 ) DEFAULT CHARSET=utf8mb4;
-
 
 
 

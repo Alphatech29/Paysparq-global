@@ -2,6 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
 const cors = require('cors');
+const winston = require("winston");
+const helmet = require("helmet");
 const bodyParser = require("body-parser");
 const apiRoutes = require('./routes/router'); 
 
@@ -13,6 +15,8 @@ const app = express();
 // CORS configuration
 app.use(cors());
 
+//Helmet
+app.use(helmet());
 
 // Apply middleware
 app.use(express.json());
@@ -29,6 +33,12 @@ app.get('*', (req, res) => {
   if (!req.url.startsWith('/api')) {
     res.sendFile(path.join(rootDir, 'index.html'));
   }
+});
+
+const logger = winston.createLogger({
+  level: "error",
+  format: winston.format.json(),
+  transports: [new winston.transports.File({ filename: "error.log" })],
 });
 
 // Error handling

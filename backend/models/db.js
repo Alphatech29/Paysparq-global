@@ -15,11 +15,18 @@ const pool = mysql.createPool({
 
 pool.getConnection((err, connection) => {
   if (err) {
-    console.error("Database connection failed:", err);
-  } else {
-    console.log("Database Connected Successfully");
-    connection.release(); 
+    console.error("Database connection failed:", err.code);
+    if (err.code === 'ER_ACCESS_DENIED_ERROR') {
+      console.error("Access Denied. Check your username and password.");
+    } else if (err.code === 'ECONNREFUSED') {
+      console.error("Connection Refused. Check if the MySQL server is running.");
+    }
+    return;
   }
+
+  console.log("Database Connected Successfully");
+  connection.release(); 
 });
+
 
 module.exports = pool;

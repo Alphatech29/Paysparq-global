@@ -41,26 +41,24 @@ const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      const response = await fetch("/api/login", { method: "POST" });
-      const result = await response.json();
-
-      if (response.ok) {
-        setAuthToken(null);
-        setUserUid(null);
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("userUid");
-        Cookies.remove("authToken");
-        Cookies.remove("userUid");
-
-        navigate("/auth/login");
-      } else {
-        alert(result.message || "Logout failed");
-      }
+      // Clear authentication state
+      setAuthToken(null);
+      setUserUid(null);
+  
+      // Remove from local storage and cookies
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userUid");
+      Cookies.remove("authToken");
+      Cookies.remove("userUid");
+  
+      // Redirect to login page
+      navigate("/auth/login");
     } catch (error) {
       console.error("Logout error:", error);
       alert("An error occurred while logging out");
     }
   };
+  
 
   const authenticated = !!authToken && !!userUid;
 

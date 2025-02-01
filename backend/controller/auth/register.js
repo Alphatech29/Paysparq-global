@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
-const db = require("../../models/db");  
+const db = require("../../models/db");
 const validator = require("validator");
+const { assignAccountNumberToUser } = require('../../controller/utils/generateAccountNumber');
 
 const signUp = async (req, res) => {
   try {
@@ -20,56 +21,54 @@ const signUp = async (req, res) => {
     }
 
     // Check for duplicates (email, username, phone_number)
-    db.query(
+    const [results] = await db.promise().query(
       `SELECT uid, email, username, phone_number FROM users WHERE email = ? OR username = ? OR phone_number = ?`,
-      [email, username, phone_number],
-      async (error, results) => {
-        if (error) {
-          console.error("Database error:", error);
-          return res.status(500).json({ message: "Internal server error" });
+      [email, username, phone_number]
+    );
+
+    if (results.length > 0) {
+      // Check if the email, username, or phone_number exists
+      for (let user of results) {
+        if (user.email === email) {
+          return res.status(409).json({ message: "Email is already in use" });
         }
-
-        if (results.length > 0) {
-          // Check if the email, username, or phone_number exists
-          for (let user of results) {
-            if (user.email === email) {
-              return res.status(409).json({ message: "Email is already in use" });
-            }
-            if (user.username === username) {
-              return res.status(409).json({ message: "Username is already taken" });
-            }
-            if (user.phone_number === phone_number) {
-              return res.status(409).json({ message: "Phone number is already registered" });
-            }
-          }
+        if (user.username === username) {
+          return res.status(409).json({ message: "Username is already taken" });
         }
-
-        // Hash the password
-        try {
-          const hashedPassword = await bcrypt.hash(password, 10);
-
-          // Insert the new user into the database
-          db.query(
-            `INSERT INTO users (fullname, email, username, country, phone_number, password) VALUES (?, ?, ?, ?, ?, ?)`,
-            [fullname, email, username, country, phone_number, hashedPassword],
-            (error, results) => {
-              if (error) {
-                console.error("Database error:", error);
-                return res.status(500).json({ message: "Internal server error" });
-              }
-
-              res.status(201).json({
-                message: "User created successfully",
-                userId: results.insertId,  // This is the auto-generated ID
-              });
-            }
-          );
-        } catch (error) {
-          console.error("Error hashing password:", error);
-          res.status(500).json({ message: "Error hashing password" });
+        if (user.phone_number === phone_number) {
+          return res.status(409).json({ message: "Phone number is already registered" });
         }
       }
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Generate the unique account number first before inserting into DB
+    const accountNumber = await assignAccountNumberToUser();
+
+    // Set default values for avatar, account_balance, and referral_balance
+    const avatar = 'https://www.example.com/default-avatar.png';
+    const account_balance = 0.00; 
+    const referral_balance = 0.00; 
+
+    // Insert the new user into the database along with the generated account number and default values
+    const [insertResult] = await db.promise().query(
+      `INSERT INTO users (fullname, email, username, country, phone_number, password, account_number, avatar, account_balance, referral_balance) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [fullname, email, username, country, phone_number, hashedPassword, accountNumber, avatar, account_balance, referral_balance]
     );
+
+    // Return the successful response
+    res.status(201).json({
+      message: "User created successfully",
+      userId: insertResult.insertId,
+      accountNumber: accountNumber,
+      avatar: avatar, 
+      account_balance: account_balance, 
+      referral_balance: referral_balance, 
+    });
+
   } catch (error) {
     console.error("Error during sign-up:", error);
     res.status(500).json({ message: "Internal server error" });

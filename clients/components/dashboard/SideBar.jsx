@@ -9,12 +9,11 @@ import { FaBitcoin } from "react-icons/fa";
 import { CiCreditCard1, CiBank } from "react-icons/ci";
 import { MdManageAccounts, MdOutlineAccountTree, MdPayments } from "react-icons/md";
 import { IoIosAddCircleOutline } from "react-icons/io";
-import { NavLink, useNavigate } from 'react-router-dom'; 
+import { NavLink } from 'react-router-dom'; 
 import { AuthContext } from '../control/AuthContext'; 
 
 const SideBar = () => {
-  const navigate = useNavigate();
-  const { logOut } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
 
 
   return (
@@ -144,7 +143,7 @@ const SideBar = () => {
           </Dropdown.Item>
           <Dropdown.Item
             icon={HiLogout}
-            onClick={logOut} // Handles logout when clicked
+            onClick={logout} 
           >
             Sign out
           </Dropdown.Item>

@@ -18,7 +18,7 @@ const Dashboard = () => {
         <Header />
         <div className="flex flex-col text-secondary text-3xl pt-14 px-4">
           {/* KYC Alert */}
-          {showAlert && (
+          {/*{showAlert && (
             <Alert
               icon={HiInformationCircle}
               onDismiss={() => setShowAlert(false)}
@@ -30,7 +30,7 @@ const Dashboard = () => {
                 Complete your KYC verification to secure your account, comply with regulations, and unlock full access.
               </p>
             </Alert>
-          )}
+          )} */}
           {/* Main Content */}
           <Outlet />
         </div>
