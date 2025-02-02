@@ -1,20 +1,26 @@
 import { useState, useEffect } from "react";
 import { Modal, TextInput, Alert, Label, Spinner } from "flowbite-react";
 import { HiCheckCircle, HiXCircle } from "react-icons/hi";
+import DashboardLogic from "../../../../components/dashboard/dashboard";
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
-function Paysparq({ openModal, setOpenModal, senderAccountNumber }) {
+function Paysparq({ openModal, setOpenModal }) {
+  const { userData, error } = DashboardLogic();
   const [recipientAccountNumber, setRecipientAccountNumber] = useState("");
   const [amount, setAmount] = useState("");
-  const [narration, setNarration] = useState("");
+  const [remarks, setRemarks] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState(null);
   const [isNameFetched, setIsNameFetched] = useState(false);
-  const [senderBalance, setSenderBalance] = useState(null);
   const [balanceError, setBalanceError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("Sender Account Number:", userData?.accountNumber);
+
     const timeoutId = setTimeout(() => {
       if (recipientAccountNumber.trim().length >= 10) {
         fetchRecipientName();
@@ -28,34 +34,33 @@ function Paysparq({ openModal, setOpenModal, senderAccountNumber }) {
   }, [recipientAccountNumber]);
 
   useEffect(() => {
-    if (amount.trim() !== "" && senderAccountNumber) {
+    if (amount.trim() !== "" && userData?.balance) {
       checkBalance();
     } else {
-      setBalanceError("");
+      setBalanceError(""); 
     }
-  }, [amount]);
+  }, [amount, userData]); 
 
-  const fetchSenderBalance = async () => {
-    try {
-      const response = await fetch(`/api/balance?accountNumber=${senderAccountNumber}`);
-      const data = await response.json();
-      if (response.ok) {
-        setSenderBalance(data.balance);
-      } else {
-        setSenderBalance(null);
-        setMessage("Error fetching sender balance.");
-        setMessageType("error");
-      }
-    } catch (error) {
-      setSenderBalance(null);
-      setMessage("Network error. Please try again.");
-      setMessageType("error");
-    }
+  const sanitizeAmount = (value) => {
+    return parseFloat(value.replace(/[^0-9.]/g, "")).toFixed(2); 
   };
 
   const checkBalance = () => {
-    if (parseFloat(amount) > senderBalance) {
+    const sanitizedAmount = sanitizeAmount(amount); 
+    const sanitizedBalance = sanitizeAmount(userData?.balance); 
+
+    console.log("Sanitized Amount: ", sanitizedAmount); 
+    console.log("Sanitized Balance: ", sanitizedBalance);  
+    
+    if (isNaN(sanitizedAmount) || isNaN(sanitizedBalance)) {
+      setBalanceError("Invalid balance or amount.");
+      console.log("Invalid values detected");  
+      return;
+    }
+
+    if (parseFloat(sanitizedAmount) > parseFloat(sanitizedBalance)) {
       setBalanceError("Insufficient balance.");
+      console.log("Insufficient balance detected");  
     } else {
       setBalanceError("");
     }
@@ -66,7 +71,6 @@ function Paysparq({ openModal, setOpenModal, senderAccountNumber }) {
     setMessage(null);
     setIsNameFetched(false);
 
-    // Early validation for recipient account number
     if (recipientAccountNumber.trim().length < 10) {
       setMessage("Account number must be at least 10 digits.");
       setMessageType("error");
@@ -80,7 +84,6 @@ function Paysparq({ openModal, setOpenModal, senderAccountNumber }) {
       const data = await response.json();
       if (response.ok && data.full_name) {
         setRecipientName(data.full_name);
-        fetchSenderBalance();
       } else {
         setRecipientName("");
         setMessage("Account number not valid.");
@@ -100,26 +103,70 @@ function Paysparq({ openModal, setOpenModal, senderAccountNumber }) {
     setLoading(true);
     setMessage(null);
     setBalanceError("");
+  
+    if (!userData?.accountNumber) {
+      setMessage("Sender account number is missing.");
+      setMessageType("error");
+      setLoading(false);
+      return;
+    }
+  
+    const sanitizedAmount = sanitizeAmount(amount);
+    const sanitizedAmountNumber = parseFloat(sanitizedAmount); 
+  
+    if (!sanitizedAmount || isNaN(sanitizedAmountNumber) || sanitizedAmountNumber <= 0) {
+      setMessage("Please enter a valid amount.");
+      setMessageType("error");
+      setLoading(false);
+      return;
+    }
+  
+    const sanitizedBalance = sanitizeAmount(userData?.balance);
+    if (parseFloat(sanitizedAmount) > parseFloat(sanitizedBalance)) {
+      setBalanceError("Insufficient balance.");
+      setMessageType("error");
+      setLoading(false);
+      return;
+    }
+  
+    const requestData = {
+      senderAccountNumber: userData?.accountNumber?.trim() || "",
+      recipientAccountNumber: recipientAccountNumber.trim(),
+      amount: sanitizedAmountNumber,
+      remarks: remarks.trim(),
+    };
+  
     try {
       const response = await fetch("/api/transfer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          senderAccountNumber,
-          recipientAccountNumber,
-          amount: parseFloat(amount),
-          narration,
-        }),
+        body: JSON.stringify(requestData),
       });
+  
       const data = await response.json();
+  
       if (response.ok) {
         setMessage("Transfer successful!");
         setMessageType("success");
+
+        Swal.fire({
+          title: 'Transfer Successful!',
+          text: 'Your transfer was successful.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+          customClass: {
+            confirmButton: 'bg-primary-600 text-pay px-6 py-2 rounded-lg hover:bg-primary-600 transition duration-300',
+          },
+        }).then(() => {
+          navigate('/user/dashboard'); 
+        });
       } else {
+        console.error("Transfer Error:", data);
         setMessage(data.message || "Transfer failed");
         setMessageType("error");
       }
     } catch (error) {
+      console.error("Network Error:", error);
       setMessage("Network error. Please try again.");
       setMessageType("error");
     } finally {
@@ -154,24 +201,29 @@ function Paysparq({ openModal, setOpenModal, senderAccountNumber }) {
             <TextInput
               id="amount"
               type="text"
-              placeholder="$1000"
+              placeholder="1000"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              disabled={loading} 
+              disabled={loading}
             />
+            {balanceError && (
+              <Alert color="failure" icon={HiXCircle} className="mt-2 p-2">
+                {balanceError}
+              </Alert>
+            )}
             {message && (
               <Alert color={messageType === "error" ? "failure" : "success"} icon={messageType === "error" ? HiXCircle : HiCheckCircle} className="mt-2 p-2">
                 {message}
               </Alert>
             )}
-            <Label htmlFor="narration" value="Narration" />
+            <Label htmlFor="remarks" value="Remarks" />
             <TextInput
-              id="narration"
+              id="remarks"
               type="text"
               placeholder="Optional"
-              value={narration}
-              onChange={(e) => setNarration(e.target.value)}
-              disabled={loading} 
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              disabled={loading}
             />
           </>
         )}

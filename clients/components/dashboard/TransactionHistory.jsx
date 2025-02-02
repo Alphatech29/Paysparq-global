@@ -59,7 +59,7 @@ const TransactionHistory = () => {
               <Table.Cell colSpan={6} className="text-center text-secondary">No transactions found</Table.Cell>
             </Table.Row>
           ) : (
-            transactions.slice(0, 15).map((transaction) => (
+            transactions.slice(0, 10).map((transaction) => (
               <Table.Row key={transaction.transaction_id} className="text-secondary">
                 <Table.Cell>{transaction.transaction_no}</Table.Cell>
                 <Table.Cell>{transaction.description || "N/A"}</Table.Cell>

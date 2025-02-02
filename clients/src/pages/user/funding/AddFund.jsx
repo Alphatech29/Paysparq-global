@@ -4,11 +4,13 @@ import Swal from 'sweetalert2';
 import DashboardLogic from '../../../../components/dashboard/dashboard';
 import axios from 'axios';
 import LoadingSpinner from '../../../../components/preload/ApiLoading';
+import { useNavigate } from 'react-router-dom';
 
 const AddFund = () => {
   const { userData } = DashboardLogic();
   const [amount, setAmount] = useState('');
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     if (userData && userData.accountNumber && userData.fullname) {
@@ -17,7 +19,6 @@ const AddFund = () => {
   }, [userData]);
 
   useEffect(() => {
-    // Remove focus styles from Tabs
     const tabs = document.querySelectorAll('.tabs [role="tab"]');
     tabs.forEach(tab => {
       tab.style.outline = "none";
@@ -105,6 +106,8 @@ const AddFund = () => {
           customClass: {
             confirmButton: 'bg-primary-600 text-pay px-6 py-2 rounded-lg hover:bg-primary-600 transition duration-300',
           },
+        }).then(() => {
+          navigate('/user/dashboard'); 
         });
       } else {
         Swal.fire({

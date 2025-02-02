@@ -12,7 +12,6 @@ function Header() {
        
       </div>
       <div className="flex items-center justify-center gap-5">
-        <span className="p-2 bg-primary-600 text-pay text-sm rounded-lg font-interSB">₦{userData?.balance || '0.00'}</span>
         <Avatar img={userData?.Avatar} rounded alt="Profile Picture" />
         
         <div className="flex items-center gap-2">

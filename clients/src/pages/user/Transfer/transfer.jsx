@@ -7,7 +7,7 @@ function Transfer() {
   const [openModal, setOpenModal] = useState(false); 
 
   return (
-    <div className="flex flex-col justify-center gap-4 items-start w-full bg-pay p-5 h-full shadow-md shadow-primary-600/50 rounded-lg">
+    <div className="flex flex-col  gap-4 items-start w-full bg-pay p-5 h-dvh shadow-md shadow-primary-600/50 rounded-lg">
       <NavLink to="/user/transfer/others">
         <div className="w-[70%] border-primary-600/50 border rounded-md px-3 py-3 cursor-pointer">
           <h1 className="text-lg font-interSB">Transfer to Bank Account</h1>
@@ -23,11 +23,11 @@ function Transfer() {
       >
         <h1 className="text-lg font-interSB">Transfer to Paysparq</h1>
         <p className="text-sm">
-          Send money in Naira from one Paysparq account to another instantly using a phone number.
+          Send money in Naira from one Paysparq account to another instantly using a account number.
         </p>
       </div>
 
-      {/* Ensure we pass both openModal and setOpenModal as props */}
+      
       <Paysparq openModal={openModal} setOpenModal={setOpenModal} />
     </div>
   );
