@@ -7,7 +7,8 @@ const { getUserDetails } = require('../controller/user/dashboard');
 const { handleTransfer, getUserFullName } = require('../controller/user/transfer');
 const { handleDepositRequest } = require('../controller/utils/deposit');
 const { getUserTransactions } = require('../controller/user/transactionHistory');
-const { getCardDetailsWithExchangeRates } = require('../controller/user/giftcards/giftcards');  
+const { getCardDetailsWithExchangeRates,submitCardDetails } = require('../controller/user/giftcards/giftcards');
+const { getUserGiftcardHistory } = require('../controller/user/giftcards/giftcardHistory')  
 
 // Sign-Up route (POST request)
 router.post("/auth/register", signUp);
@@ -32,6 +33,10 @@ router.post('/deposit', handleDepositRequest);
 router.get('/transactions/:userId', getUserTransactions);
 
 // Route to fetch all card details with exchange rates
-router.get("/card-details", getCardDetailsWithExchangeRates); 
+router.get("/card-details", getCardDetailsWithExchangeRates); router.post("/submit_card_details", submitCardDetails);
+
+//Route to get all giftcard history
+router.get('/giftcard-history/:userUid', getUserGiftcardHistory);
+
 
 module.exports = router;

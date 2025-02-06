@@ -1,5 +1,4 @@
 import React from "react";
-import { Avatar} from "flowbite-react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import DashboardLogic from "../../components/dashboard/dashboard"
 
@@ -12,8 +11,8 @@ function Header() {
        
       </div>
       <div className="flex items-center justify-center gap-5">
-        <Avatar img={userData?.Avatar} rounded alt="Profile Picture" />
-        
+        <img src={userData?.avatar} className="rounded-full w-10 h-10 border border-primary-600/50"/>
+       
         <div className="flex items-center gap-2">
           <NotificationsIcon />
           <span className="text-red-600">0</span>

@@ -8,9 +8,13 @@ const Hotdeal = () => {
       try {
         const response = await fetch('/api/card-details');
         const data = await response.json();
-
-        // Filter only United States cards and set them in the state
+        
+        console.log("API Response Data:", data);  // Log the response to check the data structure
+        
+        // Ensure the filtering matches the backend response ('United State' instead of 'USA')
         const usaCards = data.allData.filter(card => card.country === 'United State');
+        
+        console.log("Filtered USA Cards:", usaCards);  // Log the filtered cards to see if the filter is correct
 
         setCardData(usaCards);
       } catch (error) {
@@ -21,15 +25,18 @@ const Hotdeal = () => {
     fetchCardData();
   }, []);
 
+  console.log("Card Data for Display:", cardData);  // Log cardData to check before rendering
+
   return (
     <div className='shadow-md w-full shadow-primary-600/50 rounded-lg bg-pay px-3 py-3'>
       <h1 className='text-base font-interB'>Hottest Cards 🔥</h1>
       <div className='mt-3 flex gap-3 flex-wrap'>
-        {/* Only map out the first 4 cards from United State */}
+        {/* Only map out the first 4 cards from the USA */}
         {cardData.slice(0, 4).map((card) => (
           <div key={card.exchange_rate_id} className='flex rounded-lg items-center border border-primary-600/50 px-3 py-2 w-[24%]'>
             <div className='pr-3'>
-              <img src={card.avatar_url} className='rounded-lg w-10 h-8' />
+              {/* Use a fallback image if avatar_url is not available */}
+              <img src={card.avatar_url || '/default-avatar.png'} className='rounded-lg w-10 h-8' alt={card.card_name} />
             </div>
             <div className='flex flex-col'>
               <h4 className='text-base'>{card.card_name}</h4>

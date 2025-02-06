@@ -52,7 +52,7 @@ const signUp = async (req, res) => {
     const referralLink = generateReferralLink(username);  // Get referral link
 
     // Set default values for avatar, account_balance, and referral_balance
-    const avatar = 'https://www.example.com/default-avatar.png';
+    const avatar = 'https://www.marktechpost.com/wp-content/uploads/2023/05/7309681-scaled.jpg';
     const account_balance = 0.00;
     const referral_balance = 0.00;
 
