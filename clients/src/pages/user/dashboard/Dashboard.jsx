@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import Header from '../../../../components/dashboard/Header';
 import SideBar from '../../../../components/dashboard/SideBar';
 import { HiInformationCircle } from "react-icons/hi";

@@ -23,6 +23,14 @@ const SignUp = () => {
   const [countries, setCountries] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Function to format the fullname input
+  const formatName = (input) => {
+    return input
+      .split(' ') // Split the input into words
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter and make the rest lowercase
+      .join(' '); // Join the words back together
+  };
+
   // Fetch countries on component mount
   useEffect(() => {
     const fetchCountries = async () => {
@@ -148,7 +156,7 @@ const SignUp = () => {
                 type="text"
                 placeholder="Paysparq Limited"
                 value={fullname}
-                onChange={(e) => setFullname(e.target.value)}
+                onChange={(e) => setFullname(formatName(e.target.value))} // Apply formatting
               />
             </div>
             <div>

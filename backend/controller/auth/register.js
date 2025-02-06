@@ -2,10 +2,11 @@ const bcrypt = require("bcryptjs");
 const db = require("../../models/db");
 const validator = require("validator");
 const { assignAccountNumberToUser } = require('../../controller/utils/generateAccountNumber');
+const { generateReferralLink, creditReferrer } = require('../../controller/utils/referral');
 
 const signUp = async (req, res) => {
   try {
-    const { fullname, email, username, password, country, phone_number } = req.body;
+    const { fullname, email, username, password, country, phone_number, referralCode } = req.body;
 
     // Validate inputs
     if (!fullname || !email || !username || !password || !country || !phone_number) {
@@ -47,26 +48,38 @@ const signUp = async (req, res) => {
     // Generate the unique account number first before inserting into DB
     const accountNumber = await assignAccountNumberToUser();
 
+    // Generate the referral link using the username
+    const referralLink = generateReferralLink(username);  // Get referral link
+
     // Set default values for avatar, account_balance, and referral_balance
     const avatar = 'https://www.example.com/default-avatar.png';
-    const account_balance = 0.00; 
-    const referral_balance = 0.00; 
+    const account_balance = 0.00;
+    const referral_balance = 0.00;
 
-    // Insert the new user into the database along with the generated account number and default values
+    // Insert the new user into the database
     const [insertResult] = await db.promise().query(
-      `INSERT INTO users (fullname, email, username, country, phone_number, password, account_number, avatar, account_balance, referral_balance) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [fullname, email, username, country, phone_number, hashedPassword, accountNumber, avatar, account_balance, referral_balance]
+      `INSERT INTO users (fullname, email, username, country, phone_number, password, account_number, avatar, account_balance, referral_balance, referral_code) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [fullname, email, username, country, phone_number, hashedPassword, accountNumber, avatar, account_balance, referral_balance, referralLink]
     );
 
-    // Return the successful response
+    // If a referral code is provided and valid, credit the referrer
+    if (referralCode) {
+      const referralResponse = await creditReferrer(insertResult.insertId, referralCode);
+      if (referralResponse.message !== "Referrer credited successfully") {
+        return res.status(400).json({ message: referralResponse.message });
+      }
+    }
+
+    // Return the successful response with the referral link
     res.status(201).json({
       message: "User created successfully",
       userId: insertResult.insertId,
       accountNumber: accountNumber,
-      avatar: avatar, 
-      account_balance: account_balance, 
-      referral_balance: referral_balance, 
+      referralLink: referralLink,  // Return dynamic referral link
+      avatar: avatar,
+      account_balance: account_balance,
+      referral_balance: referral_balance,
     });
 
   } catch (error) {

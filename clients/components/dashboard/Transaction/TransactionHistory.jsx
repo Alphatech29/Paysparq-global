@@ -1,44 +1,50 @@
-import React, { useState, useEffect, useContext } from 'react';
+import {useState, useEffect, useContext } from 'react';
 import { Table } from 'flowbite-react';
-import { AuthContext } from '../control/AuthContext'; // Import AuthContext
+import { AuthContext } from '../../control/AuthContext';
+import TransactionModal from '../Transaction/TransactionModel'; 
 
 const TransactionHistory = () => {
-  const { userUid } = useContext(AuthContext);  // Access userUid from AuthContext
+  const { userUid } = useContext(AuthContext);
   const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);  // Declare loading state
-  const [error, setError] = useState(null);  // Declare error state
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!userUid) {
-      setError("User not authenticated");
-      setLoading(false);
       return;
     }
 
     const fetchTransactions = async () => {
       try {
-        const response = await fetch(`/api/transactions/${userUid}`);  // Use userUid here
+        const response = await fetch(`/api/transactions/${userUid}`);
         if (!response.ok) {
-          throw new Error("Failed to fetch transactions");
+          throw new Error('Failed to fetch transactions');
         }
         const data = await response.json();
         setTransactions(data);
-        setLoading(false);
       } catch (err) {
-        setError(err.message);
-        setLoading(false);
+        console.error(err.message);
       }
     };
 
     fetchTransactions();
   }, [userUid]);
 
-  // Function to format the amount with commas and two decimal points
   const formatAmount = (amount) => {
     if (amount) {
       return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount);
     }
     return '₦0.00';
+  };
+
+  const handleRowClick = (transaction) => {
+    setSelectedTransaction(transaction);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedTransaction(null);
   };
 
   return (
@@ -60,7 +66,11 @@ const TransactionHistory = () => {
             </Table.Row>
           ) : (
             transactions.slice(0, 10).map((transaction) => (
-              <Table.Row key={transaction.transaction_id} className="text-secondary">
+              <Table.Row
+                key={transaction.transaction_id}
+                className="text-secondary cursor-pointer"
+                onClick={() => handleRowClick(transaction)}
+              >
                 <Table.Cell>{transaction.transaction_no}</Table.Cell>
                 <Table.Cell>{transaction.description || "N/A"}</Table.Cell>
                 <Table.Cell>{formatAmount(transaction.amount)}</Table.Cell>
@@ -72,6 +82,15 @@ const TransactionHistory = () => {
           )}
         </Table.Body>
       </Table>
+
+      {/* Transaction Modal */}
+      {isModalOpen && selectedTransaction && (
+        <TransactionModal
+          isOpen={isModalOpen}
+          transaction={selectedTransaction}
+          onClose={closeModal}
+        />
+      )}
     </div>
   );
 };

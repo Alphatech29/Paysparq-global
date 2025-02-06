@@ -5,7 +5,7 @@ import { MdCurrencyExchange } from "react-icons/md";
 import { FaBitcoin } from "react-icons/fa6";
 import ExchangeRate from "../../../../components/dashboard/ExchageRate";
 import DashboardLogic from '../../../../components/dashboard/dashboard'; 
-import TransactionHistory from '../../../../components/dashboard/transactionHistory';
+import TransactionHistory from '../../../../components/dashboard/Transaction/TransactionHistory';
 
 const DefaultDashboard = () => {
   const { userData } = DashboardLogic(); 
