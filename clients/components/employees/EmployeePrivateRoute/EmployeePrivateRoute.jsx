@@ -27,7 +27,7 @@ const EmployeePrivateRoute = ({ children }) => {
     return <LoadingSpinner />;
   }
 
-  return employeeToken && employeeDetails ? children : <Navigate to="/workforce/login" replace />;
+  return employeeToken && employeeDetails ? children : <Navigate to="/office/login" replace />;
 };
 
 export default EmployeePrivateRoute;

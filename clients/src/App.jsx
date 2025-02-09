@@ -47,7 +47,7 @@ function App() {
           }
         />
          <Route
-          path="workforce/login"
+          path="office/login"
           element={
             <Layout hideHeaderFooter={true} hidePreload={false}>
               <LogIn />
@@ -67,7 +67,7 @@ function App() {
         <Route path="user/*" element={<PrivateRoute><UserRoutes /></PrivateRoute>}/>
 
          {/* Employee Private Route */}
-         <Route path="employee/*" element={<EmployeePrivateRoute><EmployeeRoutes /></EmployeePrivateRoute>}/>
+         <Route path="office/*" element={<EmployeePrivateRoute><EmployeeRoutes /></EmployeePrivateRoute>}/>
 
          {/* Private Route */}
          <Route path="user/*" element={<PrivateRoute><UserRoutes /></PrivateRoute>}/>

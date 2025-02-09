@@ -57,7 +57,7 @@ const EmployeeLoginLogic = () => {
 
     setLoading(true);
     try {
-      const { data } = await axios.post("/api/employees/login", {
+      const { data } = await axios.post("/api//login", {
         emailOrUsername,
         password,
         rememberMe,
@@ -82,7 +82,7 @@ const EmployeeLoginLogic = () => {
       signInEmployee(token, { role, username, fullname, email, phone_number });
 
       // Navigate to dashboard after everything is set
-      navigate("/employee/dashboard");
+      navigate("/office/dashboard");
 
     } catch (error) {
       const message = error.response?.data?.message || "An error occurred. Please try again.";

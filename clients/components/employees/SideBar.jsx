@@ -83,34 +83,18 @@ const SideBar = () => {
         </Dropdown>
 
         {/* Payment Dropdown */}
-        <Dropdown 
-          label={(
-            <div className="flex items-center space-x-2 text-secondary">
-              <MdPayments className="w-5 h-5" />
-              <span>Payment</span>
-            </div>
-          )} 
-          inline 
-          className="bg-pay border-none shadow-none"
-        >
-          <Dropdown.Item icon={CiBank} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            <NavLink to="/user/transfer">Tranfer</NavLink>
-          </Dropdown.Item>
-          <Dropdown.Item icon={IoIosAddCircleOutline} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            <NavLink to="/user/addfund">Fund Wallet</NavLink>
-          </Dropdown.Item>
-        </Dropdown>
+        
 
         {/* Other Navigation Links */}
         <span>
           <NavLink 
-            to="/employee/users" 
+            to="/office/users" 
             className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'
           >
             <FaUsers /> <span>User Management</span>
           </NavLink>
         </span>
-        
+
         <span>
           <a href="/user/history" className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'>
             <HiOutlineNewspaper /> <span>Transaction History</span>
