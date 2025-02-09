@@ -19,7 +19,7 @@ const AuthProvider = ({ children }) => {
       setUserUid(userUid);
     }
 
-    setLoading(false); // Set loading state to false after checking for token and uid
+    setLoading(false);
   }, []);
 
   const signIn = (token) => {

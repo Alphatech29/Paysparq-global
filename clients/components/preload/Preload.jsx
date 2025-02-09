@@ -20,26 +20,26 @@ export default function LoadingScreen() {
       {loading && (
         <div className="fixed inset-0 flex items-center justify-center bg-secondary z-50">
           <motion.div
-            className="relative flex items-center justify-center border-8 border-transparent rounded-full w-24 h-24"
+            className="relative flex items-center justify-center border-8 border-transparent rounded-full w-20 h-20"
             animate={{
-              borderColor: ['#F66B04', '#451805', '#FCEDD4', '#F66B04'], // Cycle through colors
+              borderColor: ['#F66B04', '#451805', '#FCEDD4', '#F66B04'], 
             }}
             transition={{
-              duration: 3, // Duration of one full cycle
-              repeat: Infinity, // Infinite loop
+              duration: 3, 
+              repeat: Infinity,
               ease: 'easeInOut',
             }}
           >
             <motion.img
               src="/image/favicon.png"
               alt="Logo"
-              className="w-10 h-10"
+              className="w-8 h-8"
               animate={{
-                scale: [1, 1.2, 1], // Pulsing animation for the logo
+                scale: [1, 1.2, 1], 
               }}
               transition={{
-                duration: 1.5, // Pulsing duration
-                repeat: Infinity, // Infinite loop
+                duration: 1.5, 
+                repeat: Infinity, 
                 ease: 'easeInOut',
               }}
             />

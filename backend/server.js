@@ -5,7 +5,8 @@ const cors = require('cors');
 const winston = require("winston");
 const helmet = require("helmet");
 const bodyParser = require("body-parser");
-const apiRoutes = require('./routes/router'); 
+const apiRoutes = require('./routes/router');
+const employeesRoute = require("./routes/employeesRoute") 
 
 
 dotenv.config();
@@ -24,6 +25,8 @@ app.use(bodyParser.json());
 
 // Define routes
 app.use('/api', apiRoutes);
+// Define employees routes
+app.use("/api", employeesRoute);
 
 // Serve frontend files
 const rootDir = path.resolve(__dirname, 'clients', 'dist');
@@ -49,5 +52,5 @@ app.use((err, req, res, next) => {
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server connected on port ${PORT}`);
+  console.log(`✅ Server connected on port ${PORT}`);
 });
