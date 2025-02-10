@@ -57,7 +57,7 @@ const EmployeeLoginLogic = () => {
 
     setLoading(true);
     try {
-      const { data } = await axios.post("/api//login", {
+      const { data } = await axios.post("/api/office/login", {
         emailOrUsername,
         password,
         rememberMe,

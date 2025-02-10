@@ -1,65 +1,56 @@
-const pool = require("../../models/db");
-
+const db = require('../../models/db');
 
 // Function to generate a unique transaction number
 const generateTransactionNo = () => {
   return `${Date.now()}${Math.floor(7000 + Math.random() * 9000)}`;
 };
 
-const fundDeposit = (userID, depositAmount, transactionDescription, callback) => {
-  pool.getConnection((err, connection) => {
-    if (err) return callback(err, null);
+const fundDeposit = async (userID, depositAmount, transactionDescription, callback) => {
+  try {
+    // Get a database connection
+    const connection = await promisePool.getConnection();  // Use promisePool to get connection
+    
+    // Start transaction
+    await connection.beginTransaction();
 
-    connection.beginTransaction((err) => {
-      if (err) {
-        connection.release();
-        return callback(err, null);
+    try {
+      // 1. Update the user's account balance
+      const [updateResult] = await connection.query(
+        "UPDATE users SET account_balance = account_balance + ? WHERE uid = ?",
+        [depositAmount, userID]
+      );
+
+      // Check if the update was successful
+      if (updateResult.affectedRows === 0) {
+        throw new Error("User not found or account update failed.");
       }
 
-      // 1. Update the user's account balance
-      connection.query(
-        "UPDATE users SET account_balance = account_balance + ? WHERE uid = ?",
-        [depositAmount, userID],
-        (err, result) => {
-          if (err) {
-            return connection.rollback(() => {
-              connection.release();
-              callback(err, null);
-            });
-          }
+      // Generate unique transaction number
+      const transactionNo = generateTransactionNo();
 
-          // Generate unique transaction number
-          const transactionNo = generateTransactionNo();
-
-          connection.query(
-            "INSERT INTO transactions (user_id, transaction_type, amount, status, description, transaction_no) VALUES (?, ?, ?, ?, ?, ?)",
-            [userID, "deposit", depositAmount, "completed", transactionDescription || "", transactionNo],
-            (err, result) => {
-              if (err) {
-                return connection.rollback(() => {
-                  connection.release();
-                  callback(err, null);
-                });
-              }
-
-              // Commit transaction
-              connection.commit((err) => {
-                if (err) {
-                  return connection.rollback(() => {
-                    connection.release();
-                    callback(err, null);
-                  });
-                }
-
-                connection.release();
-                callback(null, { transactionNo, ...result });
-              });
-            }
-          );
-        }
+      // 2. Insert the transaction record
+      const [transactionResult] = await connection.query(
+        "INSERT INTO transactions (user_id, transaction_type, amount, status, description, transaction_no) VALUES (?, ?, ?, ?, ?, ?)",
+        [userID, "deposit", depositAmount, "completed", transactionDescription || "", transactionNo]
       );
-    });
-  });
+
+      // Commit the transaction
+      await connection.commit();
+
+      // Release the connection
+      connection.release();
+
+      // Callback with success
+      callback(null, { transactionNo, ...transactionResult });
+    } catch (err) {
+      // If any query fails, rollback the transaction
+      await connection.rollback();
+      connection.release();
+      callback(err, null);
+    }
+  } catch (err) {
+    callback(err, null);
+  }
 };
 
 // Handle deposit request

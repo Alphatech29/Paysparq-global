@@ -1,7 +1,11 @@
+// giftCardHistoryController.js
 const pool = require('../../../models/db');
 
-const getUserGiftcardHistory = (req, res) => {
+// Function to get user gift card transaction history
+const getUserGiftcardHistory = async (req, res) => {
   const { userUid } = req.params;
+
+  // Validate User UID
   if (!userUid || typeof userUid !== 'string') {
     return res.status(400).json({ error: 'Valid User ID is required' });
   }
@@ -27,11 +31,8 @@ const getUserGiftcardHistory = (req, res) => {
       gcth.user_id = ?
   `;
 
-  pool.query(query, [userUid], (err, results) => {
-    if (err) {
-      console.error('Error fetching user transaction history:', err);
-      return res.status(500).json({ error: 'Failed to fetch user transaction history' });
-    }
+  try {
+    const [results] = await pool.query(query, [userUid]);
 
     if (results.length === 0) {
       return res.status(404).json({ message: 'No transaction history found for this user' });
@@ -41,7 +42,10 @@ const getUserGiftcardHistory = (req, res) => {
       message: 'User transaction history fetched successfully',
       data: results,
     });
-  });
+  } catch (err) {
+    console.error('Error fetching user transaction history:', err);
+    return res.status(500).json({ error: 'Failed to fetch user transaction history' });
+  }
 };
 
 module.exports = { getUserGiftcardHistory };

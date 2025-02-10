@@ -1,8 +1,9 @@
+// giftCardController.js
 const pool = require('../../../models/db');
 const { generateTransactionNo } = require('../../utils/transactionNo');
 
-
-const getCardDetailsWithExchangeRates = (req, res) => {
+// Function to get all card details with exchange rates
+const getCardDetailsWithExchangeRates = async (req, res) => {
   const query = `
     SELECT
       ccer.id AS exchange_rate_id,
@@ -20,11 +21,8 @@ const getCardDetailsWithExchangeRates = (req, res) => {
       ccer.card_id, ccer.country, ccer.country_currency, ccer.exchange_rate, gc.card_name, gc.avatar_url
   `;
 
-  pool.query(query, (err, results) => {
-    if (err) {
-      console.error('Error fetching card details:', err);
-      return res.status(500).json({ error: 'Failed to fetch card details' });
-    }
+  try {
+    const [results] = await pool.query(query);
 
     const formattedResults = results.map(item => ({
       ...item,
@@ -35,12 +33,16 @@ const getCardDetailsWithExchangeRates = (req, res) => {
 
     res.status(200).json({
       allData: formattedResults,
-      usaRate: usaCards,  
+      usaRate: usaCards,
     });
-  });
+  } catch (err) {
+    console.error('Error fetching card details:', err);
+    return res.status(500).json({ error: 'Failed to fetch card details' });
+  }
 };
 
-const submitCardDetails = (req, res) => {
+// Function to submit card details
+const submitCardDetails = async (req, res) => {
   const {
     user_id,
     selectedCard,
@@ -50,14 +52,14 @@ const submitCardDetails = (req, res) => {
     cardAmount,
     nairaAmount,
     eCode,
-    exchangeRate 
+    exchangeRate,
   } = req.body;
 
-
+  // Input validation
   if (!selectedCard) {
     return res.status(400).json({ error: 'Card type is required' });
   }
-  
+
   if (!selectedCardDetails) {
     return res.status(400).json({ error: 'Card details are required' });
   }
@@ -84,7 +86,7 @@ const submitCardDetails = (req, res) => {
 
   const transactionNo = generateTransactionNo();
 
-  // Insert data into the gift_card_trading_history table
+  // Insert data into gift_card_trading_history table
   const query = `
     INSERT INTO gift_card_trading_history (
       transaction_no,
@@ -102,84 +104,31 @@ const submitCardDetails = (req, res) => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  pool.query(query, [
-    transactionNo,
-    user_id, 
-    selectedCardDetails.avatar_url,
-    selectedCardDetails.card_name,
-    selectedCard, 
-    selectedCountry,
-    cardAmount,
-    nairaAmount,
-    parseFloat(exchangeRate), 
-    selectedCard === 'eCode' ? eCode : null, 
-    selectedImages.length > 0 ? selectedImages[0].id : null,
-    'pending'
-  ], (err, result) => {
-    if (err) {
-      console.error('Error saving card trading history:', err);
-      return res.status(500).json({ error: 'Failed to submit card details' });
-    }
+  try {
+    await pool.query(query, [
+      transactionNo,
+      user_id,
+      selectedCardDetails.avatar_url,
+      selectedCardDetails.card_name,
+      selectedCard,
+      selectedCountry,
+      cardAmount,
+      nairaAmount,
+      parseFloat(exchangeRate),
+      selectedCard === 'eCode' ? eCode : null,
+      selectedImages.length > 0 ? selectedImages[0].id : null,
+      'pending',
+    ]);
 
     res.status(200).json({ message: 'Form data and trade history submitted successfully!' });
-  });
-};
-
-
-// Admin approval or rejection of trade
-const adminApproveTrade = (req, res) => {
-  const { transactionNo, approvalStatus } = req.body; 
-
-  if (!transactionNo || !approvalStatus) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  // Update the trade status and add account balance if approved
-  let updateQuery = `UPDATE gift_card_trading_history SET trade_status = ? WHERE transaction_no = ?`;
-  
-  if (approvalStatus === 'approved') {
-    const fetchAmountQuery = `SELECT trade_amount, user_id FROM gift_card_trading_history WHERE transaction_no = ?`;
-    
-    pool.query(fetchAmountQuery, [transactionNo], (err, results) => {
-      if (err || results.length === 0) {
-        console.error('Error fetching trade amount:', err);
-        return res.status(500).json({ error: 'Failed to fetch trade amount' });
-      }
-      
-      const { trade_amount, user_id } = results[0];
-
-      // Update user's balance
-      const balanceQuery = `UPDATE users SET balance = balance + ? WHERE id = ?`;
-      pool.query(balanceQuery, [trade_amount, user_id], (err) => {
-        if (err) {
-          console.error('Error updating user balance:', err);
-          return res.status(500).json({ error: 'Failed to update user balance' });
-        }
-
-        // Now, update the trade status to succeeded
-        pool.query(updateQuery, ['succeeded', transactionNo], (err) => {
-          if (err) {
-            console.error('Error updating trade status:', err);
-            return res.status(500).json({ error: 'Failed to update trade status' });
-          }
-
-          res.status(200).json({ message: 'Trade successfully approved and user balance updated!' });
-        });
-      });
-    });
-  } else {
-    pool.query(updateQuery, ['rejected', transactionNo], (err) => {
-      if (err) {
-        console.error('Error rejecting trade:', err);
-        return res.status(500).json({ error: 'Failed to reject trade' });
-      }
-      res.status(200).json({ message: 'Trade successfully rejected!' });
-    });
+  } catch (err) {
+    console.error('Error saving card trading history:', err);
+    return res.status(500).json({ error: 'Failed to submit card details' });
   }
 };
 
-module.exports = { 
-  getCardDetailsWithExchangeRates, 
-  submitCardDetails, 
-  adminApproveTrade 
+// Export functions including the admin approve trade
+module.exports = {
+  getCardDetailsWithExchangeRates,
+  submitCardDetails,
 };

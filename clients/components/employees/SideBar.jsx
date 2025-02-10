@@ -12,6 +12,7 @@ import { IoIosAddCircleOutline } from "react-icons/io";
 import { FaUsers } from "react-icons/fa6";
 import { NavLink } from 'react-router-dom'; 
 import { EmployeeAuthContext } from '../control/EmployeeAuthContext'; 
+import GiftCard from "./../../src/pages/user/giftCard/giftCard";
 
 const SideBar = () => {
   const { signOutEmployee } = useContext(EmployeeAuthContext); 
@@ -34,58 +35,24 @@ const SideBar = () => {
         {/* Dashboard Link */}
         <span>
           <NavLink 
-            to="/employee/dashboard" 
+            to="/office/dashboard" 
             className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'
           >
             <HiViewGrid /> <span>Dashboard</span>
           </NavLink>
         </span>
 
-        {/* Trading Asset Dropdown */}
-        <Dropdown 
-          label={(
-            <div className="flex items-center space-x-2 text-secondary">
-              <HiOutlineAdjustments className="w-5 h-5" />
-              <span>Trading Asset</span>
-            </div>
-          )} 
-          inline 
-          className="bg-pay border-none shadow-none"
-        >
-          <Dropdown.Item icon={FaBitcoin} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            Crypto Trading
-          </Dropdown.Item>
-          <Dropdown.Item icon={HiGift} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            <NavLink to='/user/giftcard'>Gift Cards Trading</NavLink>
-          </Dropdown.Item>
-        </Dropdown>
+ 
 
-        {/* Bills & Airtime Dropdown */}
-        <Dropdown 
-          label={(
-            <div className="flex items-center space-x-2 text-secondary">
-              <HiOutlineRss className="w-5 h-5" />
-              <span>Bills & Airtime</span>
-            </div>
-          )} 
-          inline 
-          className="bg-pay border-none shadow-none"
-        >
-          <Dropdown.Item icon={HiOutlineDeviceMobile} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            Airtime TopUp
-          </Dropdown.Item>
-          <Dropdown.Item icon={HiOutlineWifi} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            Data Topup
-          </Dropdown.Item>
-          <Dropdown.Item icon={HiOutlineClipboardList} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            Pay Bills
-          </Dropdown.Item>
-        </Dropdown>
-
-        {/* Payment Dropdown */}
+        <span>
+          <NavLink 
+            to="/office/card-trade" 
+            className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'
+          >
+            <HiGift /> <span>GiftCard Trading Order</span>
+          </NavLink>
+        </span>
         
-
-        {/* Other Navigation Links */}
         <span>
           <NavLink 
             to="/office/users" 
@@ -117,7 +84,7 @@ const SideBar = () => {
           </Dropdown.Item>
           <Dropdown.Item
             icon={HiLogout}
-            onClick={handleLogout} // Trigger logout function here
+            onClick={handleLogout}
           >
             Sign out
           </Dropdown.Item>

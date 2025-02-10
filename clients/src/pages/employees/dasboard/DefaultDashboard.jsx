@@ -36,7 +36,7 @@ const DefaultDashboard = () => {
         <h2 className="text-base">{employeeDetails?.fullname || "N/A"}</h2>
       </div>
       <div className="flex w-full gap-4">
-        <div className="bg-primary-600  px-4 py-5 rounded-lg mt-3 text-paysparq justify-center items-start flex flex-col shadow-md shadow-primary-600">
+        <div className="bg-primary-600  px-4 py-5 rounded-lg mt-3 text-paysparq justify-center items-start flex flex-col shadow-md shadow-primary-600 w-[30%]">
           <div>
             <span className="text-base">Overall Users Balance</span>
             <h2 className="text-3xl">

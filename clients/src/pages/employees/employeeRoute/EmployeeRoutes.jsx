@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Dashboard from '../../employees/dasboard/Dashboard';
 import DefaultDashboard from '../../employees/dasboard/DefaultDashboard';
 import UserList from '../users/userList';
+import TradeOrder from '../giftCards/tradeOrder';
 //import Transfer from './../pages/user/transfer/Transfer';
 //import AddFund from './../pages/user/funding/AddFund';
 //import GiftCard from '../pages/user/giftCard/giftCard';
@@ -20,6 +21,7 @@ const EmployeeRoutes = () => {
         {/* Other nested routes */}
         <Route path="dashboard" element={<DefaultDashboard />} />
         <Route path="users" element={<UserList />} />
+        <Route path="card-trade" element={<TradeOrder />} />
        
 
         {/* 

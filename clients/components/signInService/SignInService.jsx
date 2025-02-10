@@ -65,7 +65,8 @@ const useSignInLogic = () => {
         rememberMe,
       });
   
-      console.log("Received response:", data); 
+      // Log successful response
+      console.log("Received response:", data);
   
       const token = data.token;
       if (!token) {
@@ -73,20 +74,17 @@ const useSignInLogic = () => {
         return;
       }
   
-      console.log("Received token:", token); 
-  
       toast.success(data.message || "Login successful!");
       storeAuthToken(token, rememberMe);
       signIn(token); 
     } catch (error) {
+      console.error("Login error:", error.response || error.message); // Log full error details
       const message = error.response?.data?.message || "An error occurred. Please try again.";
       if (error.response?.data?.error === "Too many login attempts") {
         toast.error("Too many login attempts. Please try again after 5 minutes.");
       } else {
         toast.error(message);
       }
-  
-      console.error("Login error:", error);
     } finally {
       setLoading(false);
     }

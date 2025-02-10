@@ -1,14 +1,13 @@
-const pool = require("../../models/db");
+const db = require("../../models/db");
 
 // Function to generate a unique transaction number
 const generateTransactionNo = () => {
   return `${Date.now()}${Math.floor(7000 + Math.random() * 9000)}`;
 };
 
-// Function to get user full name based on account number
 const getUserFullName = async (req, res) => {
   try {
-    const accountNumber = req.query.accountNumber;
+    const { accountNumber } = req.query;
 
     if (!accountNumber || accountNumber.trim().length < 10) {
       return res.status(400).json({ message: "Invalid account number" });
@@ -17,12 +16,12 @@ const getUserFullName = async (req, res) => {
     console.log("Account number received:", accountNumber);
 
     const query = "SELECT fullname FROM users WHERE account_number = ?";
-    const [rows] = await pool.promise().query(query, [accountNumber]);
+    const [rows] = await db.query(query, [accountNumber]);  // Use `db` instead of `pool`
 
     if (rows.length > 0) {
       res.json({ full_name: rows[0].fullname });
     } else {
-      res.status(404).json({ message: "Invalid account number" });
+      res.status(404).json({ message: "Account not found" });
     }
   } catch (error) {
     console.error("Error fetching user full name:", error);
@@ -40,7 +39,7 @@ const checkBalance = async (req, res) => {
     }
 
     const query = "SELECT account_balance FROM users WHERE account_number = ?";
-    const [rows] = await pool.promise().query(query, [accountNumber]);
+    const [rows] = await db.query(query, [accountNumber]);  // Use `db` instead of `promisePool`
 
     if (rows.length > 0) {
       res.json({ balance: rows[0].account_balance });
@@ -56,16 +55,17 @@ const checkBalance = async (req, res) => {
 const handleTransfer = async (req, res) => {
   const { senderAccountNumber, recipientAccountNumber, amount, remarks } = req.body;
 
+  // Validate input
   if (!senderAccountNumber || !recipientAccountNumber || !amount || amount <= 0) {
     return res.status(400).json({ message: "Invalid input" });
   }
 
   // Check if sender and recipient are the same
   if (senderAccountNumber === recipientAccountNumber) {
-    return res.status(400).json({ message: "Sorry you can't transfer to your self" });
+    return res.status(400).json({ message: "Sorry, you can't transfer to yourself" });
   }
 
-  const connection = await pool.promise().getConnection();
+  const connection = await db.getConnection();  // Use `db` instead of `promisePool`
   try {
     await connection.beginTransaction();
 
@@ -97,7 +97,7 @@ const handleTransfer = async (req, res) => {
       return res.status(400).json({ message: "Invalid user ID, foreign key violation" });
     }
 
-    // Generate unique transaction number
+    // Generate unique transaction number and date
     const transactionNo = generateTransactionNo();
     const transactionDate = new Date();
 
@@ -168,7 +168,7 @@ const handleTransfer = async (req, res) => {
     await connection.commit();
 
     // Fetch updated sender balance after transaction
-    const updatedSender = await connection.query(
+    const [updatedSender] = await connection.query(
       "SELECT account_balance FROM users WHERE account_number = ?",
       [senderAccountNumber]
     );
@@ -191,13 +191,11 @@ const handleTransfer = async (req, res) => {
     });
   } catch (error) {
     await connection.rollback();
-    console.error(error);
+    console.error("Error during transfer:", error);
     return res.status(500).json({ message: "Internal Server Error", error: error.message });
   } finally {
     connection.release();
   }
 };
-
-
 
 module.exports = { handleTransfer, getUserFullName, checkBalance };

@@ -44,7 +44,7 @@ function calculateRates(baseRates) {
   );
 }
 
-// Save exchange rates to the database
+// Save exchange rates to the database using async/await
 async function saveToDatabase(rates) {
   try {
     const upsertData = Object.entries(rates).map(([currency, { buying, selling }]) => [
@@ -64,13 +64,10 @@ async function saveToDatabase(rates) {
         updated_at = VALUES(updated_at);
     `;
 
-    db.query(query, [upsertData], (error, results) => {
-      if (error) {
-        console.error("Error saving exchange rates to database:", error.message);
-        throw error;
-      }
-      console.log("Rates saved successfully:", results);
-    });
+    // Refactor to async/await
+    const [results] = await db.query(query, [upsertData]);
+
+    console.log("Rates saved successfully:", results);
   } catch (error) {
     console.error("Error saving exchange rates:", error.message);
   }
@@ -106,19 +103,16 @@ cron.schedule("0 18 * * 1,3,5", updateExchangeRates);
 // API endpoint to get exchange rates
 async function getExchangeRates(req, res) {
   try {
-    const query = "SELECT * FROM exchange_rate ORDER BY updated_at ";
-    db.query(query, (error, results) => {
-      if (error) {
-        console.error("Error fetching rates from database:", error.message);
-        return res.status(500).json({ message: "Error fetching exchange rates." });
-      }
+    const query = "SELECT * FROM exchange_rate ORDER BY updated_at DESC";
+    
+    // Use async/await for the database query
+    const [results] = await db.query(query);
 
-      if (results.length === 0) {
-        return res.status(404).json({ message: "No exchange rates found in the database." });
-      }
+    if (results.length === 0) {
+      return res.status(404).json({ message: "No exchange rates found in the database." });
+    }
 
-      res.status(200).json({ rates: results });
-    });
+    res.status(200).json({ rates: results });
   } catch (error) {
     console.error("Error fetching rates from database:", error.message);
     res.status(500).json({ message: "Error fetching exchange rates." });
