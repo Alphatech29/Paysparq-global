@@ -19,7 +19,6 @@ const useSellLogic = () => {
   const [selectedExchangeRate, setSelectedExchangeRate] = useState(0);
   const [eCode, setECode] = useState('');
 
-
   useEffect(() => {
     fetch('/api/card-details')
       .then((response) => response.json())
@@ -62,14 +61,37 @@ const useSellLogic = () => {
     setNairaAmount(amount * rate);
   }, [cardAmount, selectedExchangeRate]);
 
-  // Handle image selection
+  // Handle image selection and convert to base64 buffer
   const handleImageChange = (event) => {
     const files = Array.from(event.target.files);
-    const newImages = files.map((file) => ({
-      id: URL.createObjectURL(file),
-      file: file,
-    }));
-    setSelectedImages(prev => [...prev, ...newImages]);
+
+    const newImages = files.map((file) => {
+      const reader = new FileReader();
+
+      return new Promise((resolve, reject) => {
+        reader.onloadend = () => {
+          resolve({
+            id: URL.createObjectURL(file),
+            file: file,
+            buffer: reader.result, // This is the base64 encoded image
+          });
+        };
+
+        reader.onerror = reject;
+
+        reader.readAsDataURL(file); // Convert the file to base64 string
+      });
+    });
+
+    // Use Promise.all to wait for all images to be converted
+    Promise.all(newImages)
+      .then((convertedImages) => {
+        setSelectedImages(prev => [...prev, ...convertedImages]);
+      })
+      .catch((error) => {
+        console.error("Error reading image file:", error);
+        toast.error("Error reading image file.");
+      });
   };
 
   const removeImage = (id) => {
@@ -112,6 +134,7 @@ const useSellLogic = () => {
 
   const navigate = useNavigate(); // Initialize navigate for routing
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -139,12 +162,15 @@ const useSellLogic = () => {
       return;
     }
 
-    // Prepare data to be sent
+    // Prepare form data including the base64-encoded images
     const formData = {
       user_id: userUid,
       selectedCard: cardType,  
       selectedCardDetails,
-      selectedImages,
+      selectedImages: selectedImages.map(image => ({
+        id: image.id,
+        buffer: image.buffer, // Send the base64-encoded image
+      })),
       selectedCountry,
       cardAmount,
       nairaAmount,
@@ -152,6 +178,7 @@ const useSellLogic = () => {
       exchangeRate: selectedExchangeRate, 
     };
 
+    // Send data to API
     fetch('/api/submit_card_details', {
       method: 'POST',
       headers: {

@@ -41,8 +41,24 @@ const SideBar = () => {
             <HiViewGrid /> <span>Dashboard</span>
           </NavLink>
         </span>
-
- 
+        <Dropdown 
+                 label={(
+                   <div className="flex items-center space-x-2 text-secondary">
+                     <HiGift className="w-5 h-5" />
+                     <span>GiftCard Management</span>
+                   </div>
+                 )} 
+                 inline 
+                 className="bg-pay border-none shadow-none"
+               >
+                 <Dropdown.Item className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
+                   <NavLink to='/office/giftcardlist'>Gift Cards</NavLink>
+                 </Dropdown.Item>
+                 <Dropdown.Item className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
+                   <NavLink to='/office/giftcard-rate'>Exchange Rate</NavLink>
+                 </Dropdown.Item>
+               </Dropdown>
+       
 
         <span>
           <NavLink 

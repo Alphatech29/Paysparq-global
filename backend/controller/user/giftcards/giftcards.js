@@ -1,5 +1,5 @@
-// giftCardController.js
 const pool = require('../../../models/db');
+const { saveUploadedImages } = require('../../utils/fileUpload'); 
 const { generateTransactionNo } = require('../../utils/transactionNo');
 
 // Function to get all card details with exchange rates
@@ -41,43 +41,21 @@ const getCardDetailsWithExchangeRates = async (req, res) => {
   }
 };
 
-// Function to submit card details
 const submitCardDetails = async (req, res) => {
   const {
     user_id,
     selectedCard,
     selectedCardDetails,
-    selectedImages,
     selectedCountry,
     cardAmount,
     nairaAmount,
     eCode,
     exchangeRate,
+    selectedImages,
   } = req.body;
 
-  // Input validation
-  if (!selectedCard) {
-    return res.status(400).json({ error: 'Card type is required' });
-  }
-
-  if (!selectedCardDetails) {
-    return res.status(400).json({ error: 'Card details are required' });
-  }
-
-  if (!selectedCountry) {
-    return res.status(400).json({ error: 'Selected country is required' });
-  }
-
-  if (!cardAmount || isNaN(cardAmount) || cardAmount <= 0) {
-    return res.status(400).json({ error: 'Card amount must be a valid number greater than 0' });
-  }
-
-  if (!nairaAmount || isNaN(nairaAmount) || nairaAmount <= 0) {
-    return res.status(400).json({ error: 'Naira amount must be a valid number greater than 0' });
-  }
-
-  if (!user_id) {
-    return res.status(400).json({ error: 'User ID is required' });
+  if (!selectedCard || !selectedCardDetails || !selectedCountry || !cardAmount || isNaN(cardAmount) || cardAmount <= 0 || !nairaAmount || isNaN(nairaAmount) || nairaAmount <= 0 || !user_id) {
+    return res.status(400).json({ error: 'Invalid input. Please check required fields.' });
   }
 
   if (selectedCard === 'eCode' && !eCode) {
@@ -85,8 +63,30 @@ const submitCardDetails = async (req, res) => {
   }
 
   const transactionNo = generateTransactionNo();
+  const baseURL = `${req.protocol}://${req.get('host')}`;
 
-  // Insert data into gift_card_trading_history table
+  let fullImageURLs = [];
+  try {
+    fullImageURLs = saveUploadedImages(selectedImages, baseURL);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  const dbData = [
+    transactionNo,
+    user_id,
+    selectedCardDetails.avatar_url,
+    selectedCardDetails.card_name,
+    selectedCard,
+    selectedCountry,
+    cardAmount,
+    nairaAmount,
+    parseFloat(exchangeRate),
+    selectedCard === 'eCode' ? eCode : null,
+    fullImageURLs.length > 0 ? fullImageURLs.join(',') : null,
+    'pending',
+  ];
+
   const query = `
     INSERT INTO gift_card_trading_history (
       transaction_no,
@@ -105,21 +105,7 @@ const submitCardDetails = async (req, res) => {
   `;
 
   try {
-    await pool.query(query, [
-      transactionNo,
-      user_id,
-      selectedCardDetails.avatar_url,
-      selectedCardDetails.card_name,
-      selectedCard,
-      selectedCountry,
-      cardAmount,
-      nairaAmount,
-      parseFloat(exchangeRate),
-      selectedCard === 'eCode' ? eCode : null,
-      selectedImages.length > 0 ? selectedImages[0].id : null,
-      'pending',
-    ]);
-
+    await pool.query(query, dbData);
     res.status(200).json({ message: 'Form data and trade history submitted successfully!' });
   } catch (err) {
     console.error('Error saving card trading history:', err);
@@ -127,7 +113,6 @@ const submitCardDetails = async (req, res) => {
   }
 };
 
-// Export functions including the admin approve trade
 module.exports = {
   getCardDetailsWithExchangeRates,
   submitCardDetails,

@@ -6,51 +6,76 @@ const winston = require("winston");
 const helmet = require("helmet");
 const bodyParser = require("body-parser");
 const apiRoutes = require('./routes/router');
-const employeesRoute = require("./routes/employeesRoute") 
-
+const employeesRoute = require("./routes/employeesRoute");
 
 dotenv.config();
 
 const app = express();
 
-// CORS configuration
-app.use(cors());
+// CORS Configuration - Allow Image Loading
+app.use(cors({
+  origin: '*',
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization',
+  exposedHeaders: ['Content-Disposition']
+}));
 
-//Helmet
-app.use(helmet());
+// Middleware to handle JSON body data
+app.use(express.json({ limit: '10mb' }));
 
-// Apply middleware
-app.use(express.json());
-app.use(bodyParser.json());
+// Middleware to handle raw binary data for blobs
+app.use(express.raw({ type: "application/octet-stream", limit: "10mb" }));
 
-// Define routes
+// Helmet for security (disable strict CSP for images)
+app.use(helmet({ contentSecurityPolicy: false }));
+
+// Apply bodyParser middleware for URL-encoded data
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
+
+// Define API routes
 app.use('/api', apiRoutes);
-// Define employees routes
-app.use("/api", employeesRoute);
+app.use('/api', employeesRoute);
 
 // Serve frontend files
 const rootDir = path.resolve(__dirname, 'clients', 'dist');
 app.use(express.static(rootDir));
 
+// Serve static images & files from 'public/uploads'
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads'), {
+  setHeaders: (res, filePath) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  }
+}));
+
+// Handle frontend routes
 app.get('*', (req, res) => {
-  if (!req.url.startsWith('/api')) {
+  if (!req.url.startsWith('/api') && !req.url.startsWith('/uploads')) {
     res.sendFile(path.join(rootDir, 'index.html'));
   }
 });
 
+// Logger configuration
 const logger = winston.createLogger({
   level: "error",
-  format: winston.format.json(),
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
   transports: [new winston.transports.File({ filename: "error.log" })],
 });
 
-// Error handling
+// Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send({ message: 'Something went wrong!' });
+  logger.error({ message: err.message, stack: err.stack });
+  res.status(500).json({ message: 'Something went wrong!' });
 });
+
 // Start the server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`✅ Server connected on port ${PORT}`);
+  console.log(`✅ Server connected and runnig on ${PORT}`);
 });

@@ -61,8 +61,8 @@ const TransactionHistory = () => {
         </Table.Head>
         <Table.Body className="divide-y">
           {transactions.length === 0 ? (
-            <Table.Row className='h-[70px]'>
-              <Table.Cell colSpan={6} className="text-center text-secondary">No transactions found</Table.Cell>
+            <Table.Row >
+              <Table.Cell colSpan={6} className="text-center text-secondary h-[400px]">No transaction history available.</Table.Cell>
             </Table.Row>
           ) : (
             transactions.slice(0, 10).map((transaction) => (

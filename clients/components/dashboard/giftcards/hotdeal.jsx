@@ -8,14 +8,8 @@ const Hotdeal = () => {
       try {
         const response = await fetch('/api/card-details');
         const data = await response.json();
-        
-        console.log("API Response Data:", data);  // Log the response to check the data structure
-        
         // Ensure the filtering matches the backend response ('United State' instead of 'USA')
         const usaCards = data.allData.filter(card => card.country === 'United State');
-        
-        console.log("Filtered USA Cards:", usaCards);  // Log the filtered cards to see if the filter is correct
-
         setCardData(usaCards);
       } catch (error) {
         console.error('Error fetching card data:', error);
@@ -24,8 +18,6 @@ const Hotdeal = () => {
 
     fetchCardData();
   }, []);
-
-  console.log("Card Data for Display:", cardData);  // Log cardData to check before rendering
 
   return (
     <div className='shadow-md w-full shadow-primary-600/50 rounded-lg bg-pay px-3 py-3'>

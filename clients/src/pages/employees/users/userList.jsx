@@ -81,13 +81,13 @@ const UserList = () => {
                   <div className="flex gap-4">
                     <button
                       onClick={() => handleEditClick(user)}
-                      className="bg-primary-600/70 text-pay rounded-md px-3 py-1 text-lg"
+                      className="bg-green-500/70 text-pay rounded-md px-3 py-1 text-lg"
                     >
                       <MdOutlineEditNote />
                     </button>
                     <button
                       onClick={() => handleViewClick(user)}
-                      className="bg-primary-600/70 text-pay rounded-lg px-3 py-1"
+                      className="bg-blue-500/70 text-pay rounded-md px-3 py-1"
                     >
                       <LuView />
                     </button>

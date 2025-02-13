@@ -2,13 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Table } from 'flowbite-react';
 import { MdOutlineEditNote } from "react-icons/md";
 import { LuView } from "react-icons/lu";
+import { MdOutlineRemoveCircleOutline } from "react-icons/md";
 import Swal from 'sweetalert2';
 import { getAllGiftCardHistory, updateTradeStatus } from '../../../../components/employees/dashboard/giftcardApi';
+import TradeOrderModal from './tradeOrderModal';
 
 const TradeOrder = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -28,7 +32,6 @@ const TradeOrder = () => {
   const handleTradeAction = async (transactionNo, action) => {
     try {
       if (action === 'rejected') {
-        // Prompt for rejection comment
         const { value: comment } = await Swal.fire({
           title: 'Provide a reason for rejection',
           input: 'textarea',
@@ -46,7 +49,6 @@ const TradeOrder = () => {
         });
   
         if (comment && comment.trim()) {
-          // Call API to update trade status as rejected
           const response = await updateTradeStatus(transactionNo, 'rejected', comment.trim());
           Swal.fire({
             icon: 'success',
@@ -116,7 +118,16 @@ const TradeOrder = () => {
       });
     }
   };
-  
+
+  const openModal = (transaction) => {
+    setSelectedTransaction(transaction);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedTransaction(null);
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -181,6 +192,12 @@ const TradeOrder = () => {
                       className="bg-red-500/70 text-pay rounded-md px-3 py-1"
                       disabled={transaction.trade_status !== 'pending'}
                     >
+                     <MdOutlineRemoveCircleOutline />
+                    </button>
+                    <button
+                      onClick={() => openModal(transaction)}
+                      className="bg-blue-500/70 text-pay rounded-md px-3 py-1"
+                    >
                       <LuView />
                     </button>
                   </div>
@@ -196,6 +213,12 @@ const TradeOrder = () => {
           )}
         </Table.Body>
       </Table>
+
+      <TradeOrderModal
+        transaction={selectedTransaction}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+      />
     </div>
   );
 };
