@@ -55,19 +55,11 @@ const SideBar = () => {
                    <NavLink to='/office/giftcardlist'>Gift Cards</NavLink>
                  </Dropdown.Item>
                  <Dropdown.Item className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-                   <NavLink to='/office/giftcard-rate'>Exchange Rate</NavLink>
+                   <NavLink to='/office/card-trade'>Order Tracking</NavLink>
                  </Dropdown.Item>
                </Dropdown>
        
 
-        <span>
-          <NavLink 
-            to="/office/card-trade" 
-            className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'
-          >
-            <HiGift /> <span>GiftCard Trading Order</span>
-          </NavLink>
-        </span>
         
         <span>
           <NavLink 
