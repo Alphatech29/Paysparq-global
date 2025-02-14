@@ -69,6 +69,14 @@ const SideBar = () => {
             <FaUsers /> <span>User Management</span>
           </NavLink>
         </span>
+        <span>
+          <NavLink 
+            to="/office/employees" 
+            className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'
+          >
+            <FaUsers /> <span>Employees</span>
+          </NavLink>
+        </span>
 
         <span>
           <a href="/user/history" className='flex items-center gap-2 text-secondary text-base hover:bg-primary-600 hover:p-2 hover:rounded-lg hover:text-pay'>

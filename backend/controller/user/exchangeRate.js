@@ -67,7 +67,6 @@ async function saveToDatabase(rates) {
     // Refactor to async/await
     const [results] = await db.query(query, [upsertData]);
 
-    console.log("Rates saved successfully:", results);
   } catch (error) {
     console.error("Error saving exchange rates:", error.message);
   }
@@ -84,14 +83,7 @@ async function updateExchangeRates() {
 
     const rates = calculateRates(baseRates);
 
-    console.log("Formatted Rates to Save:", JSON.stringify(rates, null, 2));
-
     await saveToDatabase(rates);
-
-    console.log("Exchange rates updated successfully at:", new Date().toISOString());
-
-    console.log("Exchange Rates Table:");
-    console.table(rates);
   } catch (error) {
     console.error("Error updating exchange rates:", error.message);
   }

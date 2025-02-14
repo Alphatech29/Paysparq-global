@@ -11,10 +11,8 @@ const Dashboard = () => {
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
       <SideBar />
       <div className="flex flex-col w-full ml-64">
-        {/* Header */}
         <Header />
         <div className="flex flex-col text-secondary text-3xl pt-14 px-4">
           {/* KYC Alert */}

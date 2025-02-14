@@ -83,17 +83,17 @@ const SideBar = () => {
           label={(
             <div className="flex items-center space-x-2 text-secondary">
               <MdPayments className="w-5 h-5" />
-              <span>Payment</span>
+              <span>Transfer</span>
             </div>
           )} 
           inline 
           className="bg-pay border-none shadow-none"
         >
           <Dropdown.Item icon={CiBank} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            <NavLink to="/user/transfer">Tranfer</NavLink>
+            <NavLink to="/user/paysparq">Paysparq</NavLink>
           </Dropdown.Item>
-          <Dropdown.Item icon={IoIosAddCircleOutline} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
-            <NavLink to="/user/addfund">Fund Wallet</NavLink>
+          <Dropdown.Item icon={CiBank} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
+            <NavLink to="/user/other-bank">Other-Bank</NavLink>
           </Dropdown.Item>
         </Dropdown>
 

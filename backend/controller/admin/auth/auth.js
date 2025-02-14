@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const pool = require("../../../models/db");
 const { createAuthToken } = require("../../../middleware/authMiddleware");
 
@@ -24,8 +25,10 @@ const login = async (req, res) => {
             return res.status(400).json({ message: "You have not been assigned to a role yet." });
         }
 
-        // Directly compare the password (plain-text comparison)
-        if (password !== employee.password) {
+        // Compare the password with the hashed password in the database
+        const isPasswordValid = await bcrypt.compare(password, employee.password);
+
+        if (!isPasswordValid) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
@@ -51,8 +54,6 @@ const login = async (req, res) => {
             updated_at: employee.updated_at,
         };
 
-        // Log the response data
-        console.log("Employee login successful. Response data:", responseData);
 
         // Return the response
         res.json(responseData);
