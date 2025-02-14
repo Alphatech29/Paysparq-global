@@ -4,14 +4,16 @@ import { MdOutlineEditNote, MdOutlineRemoveCircleOutline } from "react-icons/md"
 import { getGiftcardRate, deleteGiftcardRate } from "../../../../components/employees/dashboard/giftcardRateApi";
 import Swal from "sweetalert2";
 import Newcard from "./newCard";
-import Createrate from "./createRate";  // Make sure this component is being used somewhere if needed
+import Createrate from "./createRate";
+import Editrate from "./editRate";
 
 const GiftcardList = () => {
   const [exchangeRates, setExchangeRates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [openModal, setOpenModal] = useState(false); 
-  const [modalType, setModalType] = useState(null); // Track which modal to open
+  const [openModal, setOpenModal] = useState(false);
+  const [modalType, setModalType] = useState(null);
+  const [selectedRate, setSelectedRate] = useState(null);
 
   useEffect(() => {
     const fetchRates = async () => {
@@ -32,6 +34,12 @@ const GiftcardList = () => {
     fetchRates();
   }, []);
 
+  const handleEdit = (rate) => {
+    setSelectedRate(rate.id); 
+    setModalType('editRate'); 
+    setOpenModal(true); 
+  };
+
   const handleDelete = async (id) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
@@ -50,7 +58,6 @@ const GiftcardList = () => {
     if (result.isConfirmed) {
       try {
         const response = await deleteGiftcardRate(id);
-        console.log('Delete Response:', response);
         setExchangeRates((prevRates) => prevRates.filter(rate => rate.id !== id));
         Swal.fire('Deleted!', 'The giftcard has been deleted.', 'success');
       } catch (error) {
@@ -74,7 +81,7 @@ const GiftcardList = () => {
         <button
           className="text-sm text-pay bg-primary-600 px-3 py-2 rounded-md mb-3"
           onClick={() => {
-            setModalType('newGiftcard'); // Set modal type to 'newGiftcard'
+            setModalType('newGiftcard'); 
             setOpenModal(true);
           }}
         >
@@ -83,7 +90,7 @@ const GiftcardList = () => {
         <button
           className="text-sm text-pay bg-primary-600 px-3 py-2 rounded-md mb-3"
           onClick={() => {
-            setModalType('addExchangeRate'); // Set modal type to 'addExchangeRate'
+            setModalType('addExchangeRate'); 
             setOpenModal(true);
           }}
         >
@@ -123,12 +130,15 @@ const GiftcardList = () => {
                 <Table.Cell>{rate.updated_at}</Table.Cell>
                 <Table.Cell>
                   <div className="flex gap-2">
-                    <button className="bg-green-500/70 text-white rounded-md px-3 py-1">
+                    <button
+                      className="bg-green-500/70 text-white rounded-md px-3 py-1"
+                      onClick={() => handleEdit(rate)}
+                    >
                       <MdOutlineEditNote size={20} />
                     </button>
                     <button
                       className="bg-red-500/70 text-white rounded-md px-3 py-1"
-                      onClick={() => handleDelete(rate.id)}
+                      onClick={() => handleDelete(rate.id)} 
                     >
                       <MdOutlineRemoveCircleOutline size={20} />
                     </button>
@@ -140,13 +150,10 @@ const GiftcardList = () => {
         </Table.Body>
       </Table>
 
-      {/* Modal for creating a new giftcard or adding a new exchange rate */}
-      {modalType === 'newGiftcard' && (
-        <Newcard openModal={openModal} setOpenModal={setOpenModal} />
-      )}
-      {modalType === 'addExchangeRate' && (
-        <Createrate openModal={openModal} setOpenModal={setOpenModal} />
-      )}
+      {/* Modal Components */}
+      {modalType === 'newGiftcard' && <Newcard openModal={openModal} setOpenModal={setOpenModal} />}
+      {modalType === 'addExchangeRate' && <Createrate openModal={openModal} setOpenModal={setOpenModal} />}
+      {modalType === 'editRate' && <Editrate openModal={openModal} setOpenModal={setOpenModal} rateId={selectedRate} />}
     </div>
   );
 };

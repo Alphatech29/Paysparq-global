@@ -98,9 +98,9 @@ const UpdateUser = ({ open, onClose, user }) => {
       <Modal.Header />
       <Modal.Body>
         <div className="space-y-6">
-          <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+          <span className="text-xl font-medium text-gray-900 dark:text-white">
             Update {user?.username}'s profile
-          </h3>
+          </span>
           <div>
             <Label htmlFor="fullname" value="User Full Name" />
             <TextInput id="fullname" type="text" value={fullname} onChange={(e) => setFullname(e.target.value)} />

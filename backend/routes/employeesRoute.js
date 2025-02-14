@@ -3,7 +3,7 @@ const employeesRoute = express.Router();
 const { login } = require("../controller/admin/auth/auth");
 const {  getAllUsers, getUserById, updateUser, deleteUser } = require("../controller/admin/dashbord/users");
 const { approveTrade, getAllGiftCardHistory } = require("../controller/admin/dashbord/giftcardOrder")
-const { getAllExchangeRates,deleteCard, createCard, createExchangeRate,getAllGiftCards } = require("../controller/admin/dashbord/giftcardExchangeRate")
+const { getAllExchangeRates,deleteCard, createCard, createExchangeRate,getAllGiftCards, editExchangeRate  } = require("../controller/admin/dashbord/giftcardExchangeRate")
 
 // ------- Authentication ---------//
 employeesRoute.post("/office/login", login);
@@ -23,7 +23,8 @@ employeesRoute.get('/giftcard-rate', getAllExchangeRates ,getAllGiftCards);
 employeesRoute.get('/gift-cards',getAllGiftCards);
 employeesRoute.delete('/giftcard-rate/:cardId', deleteCard);
 employeesRoute.post('/createCard', createCard);
-employeesRoute.post('/new-rate',  createExchangeRate) 
+employeesRoute.post('/new-rate',  createExchangeRate)
+employeesRoute.put('/rate-edit/:id', editExchangeRate ) 
 
 
 module.exports = employeesRoute;

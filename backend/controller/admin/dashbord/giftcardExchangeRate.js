@@ -59,7 +59,7 @@ const deleteCard = async (req, res) => {
   }
 };
 
-//Founction to create new giftcard
+//Function to create new giftcard
 const createCard = async (req, res) => {
   try {
     const { card_name, avatar } = req.body;
@@ -94,11 +94,9 @@ const createCard = async (req, res) => {
   }
 };
 
-
-
 //All cards
 const getAllGiftCards = async (req, res) => {
-  const query = `SELECT * FROM gift_cards`; // Select all columns from the gift_cards table
+  const query = `SELECT * FROM gift_cards`;
 
   try {
     const [results] = await pool.query(query);
@@ -117,8 +115,6 @@ const getAllGiftCards = async (req, res) => {
 // Function to create exchange rate
 const createExchangeRate = async (req, res) => {
   try {
-    // Log the data received from the frontend
-    console.log("Received data from frontend:", req.body);
 
     const { card_id, country, currency, rate } = req.body;
 
@@ -148,9 +144,51 @@ const createExchangeRate = async (req, res) => {
   }
 };
 
+//Function to edit exchange rate
+const editExchangeRate = async (req, res) => {
+  const { id } = req.params;  
+  const { exchange_rate } = req.body;  
+
+  if (!exchange_rate) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Exchange rate is required',
+    });
+  }
+
+  if (typeof exchange_rate !== 'string') {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Exchange rate must be a string',
+    });
+  }
+
+  try {
+    const result = await pool.query(
+      'UPDATE card_country_exchange_rates SET exchange_rate = ? WHERE id = ?',
+      [exchange_rate, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Exchange rate not found for the given ID',
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Exchange rate updated successfully',
+    });
+  } catch (error) {
+    console.error('Error updating exchange rate:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+};
 
 
-
-
-
-module.exports = { getAllExchangeRates, deleteCard, createCard, createExchangeRate, getAllGiftCards };
+module.exports = { getAllExchangeRates, deleteCard, createCard, createExchangeRate, getAllGiftCards, editExchangeRate  };
