@@ -27,7 +27,7 @@ function Paysparq() {
       } else {
         setRecipientName("");
         setIsNameFetched(false);
-        setAccountError("Account number must be at least 10 digits.");
+        //setAccountError("Account number must be at least 10 digits.");
       }
     }, 500);
     return () => clearTimeout(timeoutId);
