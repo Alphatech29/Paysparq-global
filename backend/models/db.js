@@ -11,7 +11,7 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   connectTimeout: 10000,
-}).promise(); // ✅ Add .promise() to enable async/await
+}).promise(); 
 
 // Test connection
 pool.getConnection()

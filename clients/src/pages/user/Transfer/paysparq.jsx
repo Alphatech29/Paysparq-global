@@ -149,7 +149,7 @@ function Paysparq() {
       <div>
         <h1 className="text-lg font-semibold">Transfer to Paysparq</h1>
       </div>
-      <div className="w-[40%]">
+      <div className="w-[40%] border border-primary-600/50 px-3 py-3 rounded-md mt-4 ">
         <Label htmlFor="recipientAccountNumber" value="Recipient Account Number" />
         <TextInput
           id="recipientAccountNumber"
