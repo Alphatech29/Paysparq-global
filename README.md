@@ -23,7 +23,7 @@ Paysparq is a platform where people can trade their gift cards for cash, pay bil
    ```
 2. Navigate to the frontend directory:
    ```sh
-   cd paysarq-global/frontend
+   cd paysarq-global/clients
    ```
 3. Install dependencies:
    ```sh
