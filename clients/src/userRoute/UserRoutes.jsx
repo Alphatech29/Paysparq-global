@@ -10,6 +10,7 @@ import Referral from './../pages/user/referral/Referral';
 import Buycard from '../pages/user/giftCard/buycard';
 import SellCard from '../pages/user/giftCard/sellCard';
 import Paysparq from '../pages/user/Transfer/paysparq';
+import Airtime from '../pages/user/bill&airtime/airtime';
 
 const UserRoutes = () => {
   return (
@@ -21,6 +22,7 @@ const UserRoutes = () => {
         <Route path="airtime-cash" element={<AirtimeToCash />} />
         <Route path="paysparq" element={<Paysparq />} />
         <Route path="addfund" element={<AddFund />} />
+        <Route path="airtime" element={<Airtime />} />
 
         {/* GiftCard as a layout route with nested routes */}
         <Route path="giftcard/*" element={<GiftCardOutlet />}>

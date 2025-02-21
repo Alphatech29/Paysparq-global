@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { TextInput, Label, Button } from "flowbite-react";
 
-const AirtimeToCash = () => {
+const Airtime = () => {
   const [selectedMethod, setSelectedMethod] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState();
 
@@ -89,4 +89,4 @@ const AirtimeToCash = () => {
   );
 };
 
-export default AirtimeToCash;
+export default Airtime;

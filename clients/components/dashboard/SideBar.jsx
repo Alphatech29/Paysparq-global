@@ -67,12 +67,16 @@ const SideBar = () => {
           inline 
           className="bg-pay border-none shadow-none"
         >
-          <Dropdown.Item icon={HiOutlineDeviceMobile} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
+         <NavLink to="/user/airtime">
+         <Dropdown.Item icon={HiOutlineDeviceMobile} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
             Airtime TopUp
           </Dropdown.Item>
-          <Dropdown.Item icon={HiOutlineWifi} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
+         </NavLink>
+         <NavLink to="/user/data">
+         <Dropdown.Item icon={HiOutlineWifi} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
             Data Topup
           </Dropdown.Item>
+         </NavLink>
           <Dropdown.Item icon={HiOutlineClipboardList} className='hover:bg-primary-600 hover:text-paysparq hover:rounded-lg'>
             Pay Bills
           </Dropdown.Item>
