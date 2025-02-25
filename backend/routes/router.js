@@ -7,36 +7,42 @@ const { getUserDetails } = require('../controller/user/dashboard');
 const { handleTransfer, getUserFullName } = require('../controller/user/transfer');
 const { handleDepositRequest } = require('../controller/utils/deposit');
 const { getUserTransactions } = require('../controller/user/transactionHistory');
-const { getCardDetailsWithExchangeRates,submitCardDetails } = require('../controller/user/giftcards/giftcards');
-const { getUserGiftcardHistory } = require('../controller/user/giftcards/giftcardHistory')  
+const { getCardDetailsWithExchangeRates, submitCardDetails } = require('../controller/user/giftcards/giftcards');
+const { getUserGiftcardHistory } = require('../controller/user/giftcards/giftcardHistory');
+const { userVtuAirtimePost, userVtuDataPost, userVtuGetVariations } = require("../controller/user/vtpass");
 
-// Sign-Up route (POST request)
+// Sign-Up route
 router.post("/auth/register", signUp);
 
-// Sign-In route (POST request with middleware for authentication)
+// Sign-In route
 router.post("/auth/login", signIn);
 
-// Route to get exchange rates
+// Get exchange rates
 router.get("/exchange-rates", getExchangeRates);
 
-// Route to get the user account balance
+// Get user account balance
 router.get("/user/:userUid", getUserDetails);
 
-// Route to handle transfer
+// Handle transfer
 router.post("/transfer", handleTransfer); 
 router.get("/transfer", getUserFullName);
 
-// Route to handle fund deposit
+// Handle fund deposit
 router.post('/deposit', handleDepositRequest);
 
-// Route to fetch transactions for a specific user
+// Fetch transactions for a specific user
 router.get('/transactions/:userId', getUserTransactions);
 
-// Route to fetch all card details with exchange rates
-router.get("/card-details", getCardDetailsWithExchangeRates); router.post("/submit_card_details", submitCardDetails);
+// Fetch all card details with exchange rates
+router.get("/card-details", getCardDetailsWithExchangeRates); 
+router.post("/submit_card_details", submitCardDetails);
 
-//Route to get all giftcard history
+// Get all giftcard history
 router.get('/giftcard-history/:userUid', getUserGiftcardHistory);
 
+//-------- VTU Service Routes (Ensures User Balance Check) --------//
+router.post("/vtu/airtime", userVtuAirtimePost);
+router.post("/vtu/data", userVtuDataPost);
+router.get("/vtu/variations", userVtuGetVariations);
 
 module.exports = router;

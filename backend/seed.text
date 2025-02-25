@@ -123,6 +123,39 @@ CREATE TABLE employees(
     FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE
 );
 
+CREATE TABLE website_settings (
+    id SERIAL PRIMARY KEY,
+    website_title VARCHAR(255) NOT NULL DEFAULT 'Paysparq Limited',
+    website_tagline VARCHAR(255) NOT NULL DEFAULT 'Paysparq',
+    website_description TEXT NOT NULL,
+    website_keyword TEXT NOT NULL,
+    website_url VARCHAR(255) NOT NULL,
+    website_logo VARCHAR(255) NULL,
+    website_favicon VARCHAR(255) NULL,
+    website_phone_number VARCHAR(255) NOT NULL,
+    website_address VARCHAR(255) NOT NULL,
+    website_email VARCHAR(255) NOT NULL,.
+    website_author VARCHAR(255) NOT NULL,
+    website_dev_name VARCHAR(255) NOT NULL,
+    website_dev_link TEXT NOT NULL,
+    website_currency VARCHAR(10) NOT NULL DEFAULT '$'
+);
+
+CREATE TABLE vtpass_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT(20) NOT NULL,  -- Match with users.uid (BIGINT)
+    transaction_id VARCHAR(100) NOT NULL UNIQUE,
+    purchase_type ENUM('airtime', 'data') NOT NULL,
+    network_provider VARCHAR(15) NOT NULL,
+    phone_number VARCHAR(15) NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    data_plan VARCHAR(10) NULL,
+    status ENUM('pending', 'successful', 'failed') NOT NULL,
+    response_message TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(uid) ON DELETE CASCADE
+);
+
 
 
 

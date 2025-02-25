@@ -11,6 +11,7 @@ import Buycard from '../pages/user/giftCard/buycard';
 import SellCard from '../pages/user/giftCard/sellCard';
 import Paysparq from '../pages/user/Transfer/paysparq';
 import Airtime from '../pages/user/bill&airtime/airtime';
+import Data from '../pages/user/bill&airtime/data';
 
 const UserRoutes = () => {
   return (
@@ -23,6 +24,7 @@ const UserRoutes = () => {
         <Route path="paysparq" element={<Paysparq />} />
         <Route path="addfund" element={<AddFund />} />
         <Route path="airtime" element={<Airtime />} />
+        <Route path="data" element={<Data />} />
 
         {/* GiftCard as a layout route with nested routes */}
         <Route path="giftcard/*" element={<GiftCardOutlet />}>

@@ -4,7 +4,8 @@ const { login } = require("../controller/admin/auth/auth");
 const {  getAllUsers, getUserById, updateUser, deleteUser } = require("../controller/admin/dashbord/users");
 const { approveTrade, getAllGiftCardHistory } = require("../controller/admin/dashbord/giftcardOrder")
 const { getAllExchangeRates,deleteCard, createCard, createExchangeRate,getAllGiftCards, editExchangeRate  } = require("../controller/admin/dashbord/giftcardExchangeRate")
-const{ getAllEmployeesWithRoles, getAllRoles, editEmployeeById } = require("../controller/admin/dashbord/profile")
+const{ getAllEmployeesWithRoles, getAllRoles, editEmployeeById } = require("../controller/admin/dashbord/profile");
+const getWebsiteSettings = require("../controller/utils/getwebSettings");
 
 // ------- Authentication ---------//
 employeesRoute.post("/office/login", login);
@@ -31,6 +32,9 @@ employeesRoute.put('/rate-edit/:id', editExchangeRate )
 employeesRoute.get('/employees', getAllEmployeesWithRoles, getAllRoles);
 employeesRoute.get('/employees/role', getAllRoles);
 employeesRoute.put('/employees/:id', editEmployeeById)
+
+//----Get all Websettings Route----//
+employeesRoute.get("/websettings", getWebsiteSettings)
 
 
 

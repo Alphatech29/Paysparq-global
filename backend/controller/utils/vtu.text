@@ -1,0 +1,98 @@
+const { fetcher } = require("./fetcher");
+const { getWebSettings } = require("./settings");
+const { generateVTUId } = require("./uniqueID");
+
+/**
+ * ✅ Generate authentication headers (includes all required API keys)
+ */
+const getAuthHeaders = async () => {
+    try {
+        const { website_vtpass_api, website_vtpass_pk, website_vtpass_sk } = await getWebSettings();
+
+        return {
+            "api-key": website_vtpass_api,
+            "public-key": website_vtpass_pk,
+            "secret-key": website_vtpass_sk,
+            "Content-Type": "application/json"
+        };
+    } catch (error) {
+        console.error("Error generating auth headers:", error);
+        throw error;
+    }
+};
+
+/**
+ * ✅ GET USER WALLET ACCOUNT BALANCE
+ */
+exports.checkVtuBalance = async () => {
+    try {
+        const { website_vtpass_url } = await getWebSettings();
+        const headers = await getAuthHeaders();
+
+        const result = await fetcher({}, `${website_vtpass_url}/api/balance`, "GET", headers);
+        return result.contents?.balance || 0;
+    } catch (error) {
+        console.error("Error in checkVtuBalance:", error);
+        throw error;
+    }
+};
+
+/**
+ * ✅ DIRECT RECHARGE (AIRTIME)
+ */
+exports.rechargeAirtime = async (amount, type, phone) => {
+    try {
+        const { website_vtpass_url } = await getWebSettings();
+        const headers = await getAuthHeaders();
+
+        const payload = {
+            serviceID: type,
+            request_id: generateVTUId(),
+            amount,
+            phone
+        };
+
+        return await fetcher(payload, `${website_vtpass_url}/api/pay`, "POST", headers);
+    } catch (error) {
+        console.error("Error in rechargeAirtime:", error);
+        throw error;
+    }
+};
+
+/**
+ * ✅ DIRECT DATA PURCHASE
+ */
+exports.rechargeData = async (variation, type, phone) => {
+    try {
+        const { website_vtpass_url } = await getWebSettings();
+        const headers = await getAuthHeaders();
+
+        const payload = {
+            serviceID: type,
+            request_id: generateVTUId(),
+            billersCode: phone,
+            phone,
+            variation_code: variation
+        };
+
+        return await fetcher(payload, `${website_vtpass_url}/api/pay`, "POST", headers);
+    } catch (error) {
+        console.error("Error in rechargeData:", error);
+        throw error;
+    }
+};
+
+/**
+ * ✅ GET VTU VARIATIONS
+ */
+exports.getVtuVariations = async (type) => {
+    try {
+        const { website_vtpass_url } = await getWebSettings();
+        const headers = await getAuthHeaders();
+
+        return await fetcher({}, `${website_vtpass_url}/api/service-variations?serviceID=${type}-data`, "GET", headers);
+    } catch (error) {
+        console.error("Error in getVtuVariations:", error);
+        throw error;
+    }
+};
